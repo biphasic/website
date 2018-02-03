@@ -18,16 +18,16 @@ weight = 5
 # List your qualifications (such as academic degrees).
 [[education.courses]]
   course = "PhD in Neuromorphic Engineering"
-  institution = "Sorbonne Universités"
-  year = ongoing
+  institution = "Sorbonne Universités, Paris, France"
+  #year = 2018
 
 [[education.courses]]
   course = "MSc in Biomedical Engineering"
-  institution = "UAS Technikum Vienna"
+  institution = "UAS Technikum, Vienna, Austria "
   year = 2014
 
 +++
 
-# Welcome
+## **Welcome**
 
 Hey there, I recently started my PhD at the Institut de la Vision, working on all sorts of applications with event-based cameras. Also I love playing drums!
