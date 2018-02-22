@@ -28,6 +28,6 @@ weight = 5
 
 +++
 
-## **Welcome**
+## **Hey there,**
 
-Hey there, I recently started my PhD at the Institut de la Vision, working on all sorts of applications with event-based cameras. Also I love playing drums!
+I recently started my PhD at the Institut de la Vision, working on all sorts of applications with event-based cameras. Also I love playing drums!
