@@ -225,7 +225,7 @@ defaultContentLanguageInSubdir = false
   [[params.social]]
     icon = "instagram"
     icon_pack = "fa"
-    link = "//instagram/biphasic"
+    link = "//instagram.com/biphasic"
 
   [[params.social]]
     icon = "twitter"
