@@ -62,8 +62,8 @@ defaultContentLanguageInSubdir = false
 
   gravatar = false  # Get your avatar from Gravatar.com? (true/false)
   avatar = "portrait.jpg"  # Specify an avatar image (in `static/img/` folder) or delete value to disable avatar.
-  email = "biphasic@lavabit.com"
-  address = "74 rue du Faubourg Saint Antoine, 75012 Paris, France"
+  email = "gregor.lenz@inserm.fr"
+  address = "Institut de la Vision: 74 rue du Faubourg Saint Antoine, 75012 Paris, France"
   #office_hours = "Monday 10:00 to 13:00 or email for appointment"
   #phone = "888 888 88 88"
   #skype = "echo123"
@@ -220,7 +220,7 @@ defaultContentLanguageInSubdir = false
   [[params.social]]
     icon = "envelope"
     icon_pack = "fa"
-    link = "mailto:biphasic@lavabit.com"
+    link = "mailto:gregor.lenz@inserm.fr"
 
   [[params.social]]
     icon = "instagram"
