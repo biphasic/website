@@ -19,7 +19,7 @@ weight = 5
 [[education.courses]]
   course = "PhD in Neuromorphic Engineering"
   institution = "Sorbonne Universités, Paris, France"
-  #year = 2018
+  #year = 2019
 
 [[education.courses]]
   course = "MSc in Biomedical Engineering"

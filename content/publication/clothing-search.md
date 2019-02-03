@@ -1,6 +1,7 @@
 +++
 title = "Mobile visual clothing search"
 date = "2013-07-01"
+draft = true
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["GA Cushen", "MS Nixon"]
