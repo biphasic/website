@@ -30,4 +30,4 @@ weight = 5
 
 ## **Hey there,**
 
-I am a PhD student at the [Institut de la Vision](http://neuromorphic-vision.com/) in Paris, working on [face detection](https://www.youtube.com/watch?v=vrAOdzgpc-Y) with event-based cameras. Also I love playing the drums!
+I am a PhD student at the [Institut de la Vision](http://neuromorphic-vision.com/) in Paris, working on [face detection](https://www.youtube.com/watch?v=F5UzXQsr5Es) with event-based cameras. Also I love playing the drums!
