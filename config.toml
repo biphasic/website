@@ -10,7 +10,7 @@ title = ""
 
 # Your copyright notice - appears in site footer.
 # To display a copyright symbol, type `&copy;`.
-copyright = "&copy; 2018"
+copyright = "&copy; 2018-2020"
 
 theme = "academic"
 enableEmoji = true
@@ -63,7 +63,7 @@ defaultContentLanguageInSubdir = false
   gravatar = false  # Get your avatar from Gravatar.com? (true/false)
   avatar = "portrait.jpg"  # Specify an avatar image (in `static/img/` folder) or delete value to disable avatar.
   email = "gregor.lenz@inserm.fr"
-  address = "Institut de la Vision: 74 rue du Faubourg Saint Antoine, 75012 Paris, France"
+  address = "Institut de la Vision: 13 rue Moreau, 75012 Paris, France"
   #office_hours = "Monday 10:00 to 13:00 or email for appointment"
   #phone = "888 888 88 88"
   #skype = "echo123"
@@ -261,10 +261,10 @@ defaultContentLanguageInSubdir = false
 #  url = "#publications_selected"
 #  weight = 2
 
-#[[menu.main]]
-#  name = "Posts"
-#  url = "#posts"
-#  weight = 3
+[[menu.main]]
+ name = "Posts"
+ url = "#posts"
+ weight = 3
 
 [[menu.main]]
   name = "Projects"
