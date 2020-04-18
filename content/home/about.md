@@ -5,7 +5,7 @@ active = true
 date = "2020-04-10T00:00:00"
 
 # Order that this section will appear in.
-weight = 5
+weight = 10
 
 # List your academic interests.
 [interests]
@@ -19,7 +19,7 @@ weight = 5
 # List your qualifications (such as academic degrees).
 [[education.courses]]
   course = "PhD in Neuromorphic Engineering"
-  institution = "Sorbonne Universités, Paris, France"
+  institution = "Sorbonne Université, Paris, France"
   #year = 2019
 
 [[education.courses]]
