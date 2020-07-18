@@ -222,10 +222,10 @@ defaultContentLanguageInSubdir = false
     icon_pack = "fa"
     link = "mailto:gregor.lenz@inserm.fr"
 
-  [[params.social]]
-    icon = "instagram"
-    icon_pack = "fa"
-    link = "//instagram.com/biphasic"
+  # [[params.social]]
+  #   icon = "instagram"
+  #   icon_pack = "fa"
+  #   link = "//instagram.com/biphasic"
 
   [[params.social]]
     icon = "twitter"
