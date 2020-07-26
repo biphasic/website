@@ -38,7 +38,7 @@ selected = true
 # projects = ["example-external-project"]
 
 # Links (optional).
-#url_pdf = ""
+url_pdf = "https://personalpages.manchester.ac.uk/staff/p.dudek/papers/haessig-iscas2020.pdf"
 #url_preprint = ""
 #url_code = "#"
 #url_dataset = "#"
