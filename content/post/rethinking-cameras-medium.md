@@ -1,5 +1,5 @@
 +++
-title = "Rethinking the way our cameras see"
+title = "Rethinking the way our cameras see."
 
 date = 2016-04-20
 lastmod = 2020-04-14

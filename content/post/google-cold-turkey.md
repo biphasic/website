@@ -44,3 +44,19 @@ So do I still use proprietary services? Of course I do.
 
 
 Thought: if we become lazy regarding privacy, we end up like people from Wall-E
+
+
+
+[//]: # "The ever growing list of [known data breaches](https://en.wikipedia.org/wiki/List_of_data_breaches) due to really poor security is getting longer by the day.
+
+Turns out companies know [a lot about you](https://www.technologyreview.com/s/607938/google-now-tracks-your-credit-card-purchases-and-connects-them-to-its-online-profile-of-you/)
+
+You can [cloak your photos](http://people.cs.uchicago.edu/%7Eravenben/publications/abstracts/fawkes-usenix20.html) so that facial recognition software doesn't work anymore.
+
+If you're using a lot of 'smart' technology at home, you could [run a check](https://iotinspector.org/) to see how much data they're sending home.
+
+If you're paranoid, check [this site](https://prism-break.org/en/) with OS-specific advice.
+
+and its urgency will only become more apparent as we continue our path in a digital society.
+And it's not just companies who are interested in your online activity, as you are surely aware of since Edward Snowden broke rank.
+"

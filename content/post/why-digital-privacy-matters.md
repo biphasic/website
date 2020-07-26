@@ -6,15 +6,14 @@ lastmod = 2020-07-26
 draft = false
 
 tags = ["digital privacy"]
-summary = "Reclaim your data"
+summary = "Reclaim your online identity."
 
 [header]
-image = "headers/goodbye2.jpg"
-caption = ""
+image = "headers/privacy.png"
+caption = "image credit: https://blog.usejournal.com/what-is-digital-privacy-search-encrypt-explains-why-privacy-matters-768ec372bf00"
 
 +++
 
-# Reclaiming my digital space
 Over the past years I started to take back the control of my data online. I deleted a bunch of accounts, some of which I replaced with an open source service. Although I had some doubts as to whether I would seriously miss some of the 'free' services out there, I have to say that it has been a smooth and very rewarding ride so far.
 I strongly believe that privacy is a key element for a functioning and free society and should therefore be protected. In the information age that we are in now, this concept has become somewhat opaque, while we citizens have become transparent. So let's have a look at why ditigal privacy matters.
 
@@ -67,18 +66,3 @@ Digital privacy matters because automated collection and processing of personal 
 In the end it boils down to a trade-off between freedom and security. Do tailored ads and messenger backdoors limit your freedom? Certainly. Will a Big Brother government ensure security for its well-behaving citizens? [Certainly](https://time.com/collection/davos-2019/5502592/china-social-credit-score/). We just have to be careful not to lose both in the end.
 
 One last thing: Think for a second where technological advancements have led us. Integrated circuit technology allowed devices to shrink from a room-sized to a palm-sized computer. The rate of progress is not going to slow down! In my opinion, we are already very much dependent on that palm-sized device. Think about what it means if we physically connect to the internet. I am convinced that we will see brain machine interfaces become a routine thing within the next decades. We will be able to directly transmit our thoughts to each other, not needing thumbs to interact with a messenger app via a screen. If we do not develop a good understanding of privacy-protecting policies in the digital world, how will you then be able to say that the thoughts you have are really yours? Tell that to Orwell for a start.
-
-
-[//]: # "The ever growing list of [known data breaches](https://en.wikipedia.org/wiki/List_of_data_breaches) due to really poor security is getting longer by the day.
-
-Turns out companies know [a lot about you](https://www.technologyreview.com/s/607938/google-now-tracks-your-credit-card-purchases-and-connects-them-to-its-online-profile-of-you/)
-
-You can [cloak your photos](http://people.cs.uchicago.edu/%7Eravenben/publications/abstracts/fawkes-usenix20.html) so that facial recognition software doesn't work anymore.
-
-If you're using a lot of 'smart' technology at home, you could [run a check](https://iotinspector.org/) to see how much data they're sending home.
-
-If you're paranoid, check [this site](https://prism-break.org/en/) with OS-specific advice.
-
-and its urgency will only become more apparent as we continue our path in a digital society.
-And it's not just companies who are interested in your online activity, as you are surely aware of since Edward Snowden broke rank.
-"

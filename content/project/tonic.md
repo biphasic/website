@@ -8,10 +8,10 @@ draft = false
 tags = []
 
 # Project summary to display on homepage.
-summary = "Spike-based data sets and transformation built on pytorch."
+summary = "Spike-based data sets and transformation built on PyTorch."
 
 # Optional image to display on homepage.
-image_preview = "Tonic-logo.png"
+image_preview = "Tonic-logo-custom-pad.png"
 
 # Optional external URL for project (replaces project detail page).
 external_link = "https://github.com/neuromorphs/tonic"
