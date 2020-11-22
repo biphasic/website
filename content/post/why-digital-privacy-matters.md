@@ -35,7 +35,7 @@ As Andrew Trask, the clever mind behind [OpenMined](http://openmined.org/), puts
 
 ## Is there a way out?
 Once a measure of data collection or surveillance is in place, it is hard to get rid of it. That's why it's necessary to act early on. We should be able to explore parts of life privately and without embarrassment or threat.
-Bare in mind that it's never too late to start taking ownership of your data as companies are interested in recent trends. If you replaced a service right now it might not affect how you are targeted immediately, but eventually your information will become out of date.
+Bear in mind that it's never too late to start taking ownership of your data as companies are interested in recent trends. If you replaced a service right now it might not affect how you are targeted immediately, but eventually your information will become out of date.
 As to things everyone of us can do to reduce their digital footprint, let me say this:
 
 * Use [Firefox](https://www.mozilla.org/en-US/firefox/new/) or [Tor Browser](https://www.torproject.org/). They come with privacy features built in.
@@ -66,3 +66,7 @@ Digital privacy matters because automated collection and processing of personal 
 In the end it boils down to a trade-off between freedom and security. Do tailored ads and messenger backdoors limit your freedom? Certainly. Will a Big Brother government ensure security for its well-behaving citizens? [Certainly](https://time.com/collection/davos-2019/5502592/china-social-credit-score/). We just have to be careful not to lose both in the end.
 
 One last thing: Think for a second where technological advancements have led us. Integrated circuit technology allowed devices to shrink from a room-sized to a palm-sized computer. The rate of progress is not going to slow down! In my opinion, we are already very much dependent on that palm-sized device. Think about what it means if we physically connect to the internet. I am convinced that we will see brain machine interfaces become a routine thing within the next decades. We will be able to directly transmit our thoughts to each other, not needing thumbs to interact with a messenger app via a screen. If we do not develop a good understanding of privacy-protecting policies in the digital world, how will you then be able to say that the thoughts you have are really yours? Tell that to Orwell for a start.
+
+https://judiciary.house.gov/news/documentsingle.aspx?DocumentID=3114
+
+https://support.brave.com/hc/en-us/articles/360026361072-Brave-Ads-FAQ

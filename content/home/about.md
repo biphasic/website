@@ -35,4 +35,4 @@ weight = 10
 
 ## **Hey there,**
 
-I started my PhD in 2017 at the [Institut de la Vision](http://neuromorphic-vision.com/) in Paris, where I have since experimented with neuromorphic cameras on embedded systems. I work on gesture recognition on mobile phones as well as [face detection](https://www.youtube.com/watch?v=F5UzXQsr5Es) with event-based cameras. More recently I started to explore some neural computation principles on Loihi, a novel neuromorphic chip. I'm also interested in how to preserve privacy online!
+I am about to finish my PhD at the [Institut de la Vision](http://neuromorphic-vision.com/) in Paris, where I have been experimenting with neuromorphic cameras on embedded systems. I worked on gesture recognition on mobile phones as well as [face detection](https://www.youtube.com/watch?v=F5UzXQsr5Es) for low-power systems and also explored neural computation principles on Loihi, which is a novel neuromorphic chip. I would like to build a company that focuses on low power vision for mobile systems. If that might be something of interested to you, please get in touch!
