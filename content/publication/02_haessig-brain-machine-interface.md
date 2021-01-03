@@ -18,8 +18,8 @@ authors = ["G Haessig", "DC Lesta", "G Lenz", "R Benosman", "P Dudek"]
 publication_types = ["1"]
 
 # Publication name and optional abbreviated version.
-publication = "Accepted at *International Symposium on Circuits and Systems (ISCAS)*."
-publication_short = "Accepted at *ISCAS*."
+publication = "*International Symposium on Circuits and Systems (ISCAS)*."
+publication_short = "*ISCAS*"
 
 # Abstract and optional shortened version.
 abstract = "Neuromorphic systems provide an alternative to conventional computing hardware, promising low-power operation suitable for sensory-processing and edge computing. In this paper, we present a mixed-signal processing system designed to provide on-sensor classification of signals obtained from multi-electrode array neural recordings. The designed circuits implement a real-time spike sorting algorithm, and operate on signals represented by asynchronous event streams. We combine analog circuits computation primitives (temporal surface generation, distance computation, winner-take-all) to implement a spatio-temporal clustering algorithm, classifying signals acquired by neighbouring electrodes. The prototype chip has been submitted for fabrication in a 180nm CMOS technology. The circuits are designed to fit, alongside signal conditioning and conversion circuits, in the area under the recording electrodes (below 80x80um per electrode). Circuit implementation details and simulation results are presented. The expected neural spike recognition rates of 75% in a single-layer network and 88% in a 2-layer network are comparable with a software implementation, while the system is designed to provide a low-power embedded real-time solution. This work provides a foundation towards the design of a large scale neuromorphic processing system, to be embedded in brain-machine interfaces."

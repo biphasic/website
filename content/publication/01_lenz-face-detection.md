@@ -18,8 +18,8 @@ authors = ["G Lenz", "SH Ieng", "R Benosman"]
 publication_types = ["1"]
 
 # Publication name and optional abbreviated version.
-publication = "To appear in *Frontiers of Neuroscience*."
-publication_short = "To appear in *Frontiers of Neuroscience*."
+publication = "*Frontiers of Neuroscience*"
+publication_short = "*Frontiers of Neuroscience*"
 
 # Abstract and optional shortened version.
 abstract = "We present the first purely event-based method for face detection using the high temporal resolution properties of an event-based camera to detect the presence of a face in a scene using eye blinks. Eye blinks are a unique and stable natural dynamic temporal signature of human faces across population that can be fully captured by event-based sensors. We show that eye blinks have a unique temporal signature over time that can be easily detected by correlating the acquired local activity with a generic temporal model of eye blinks that has been generated from a wide population of users. In a second stage once a face has been located it becomes possible to apply a probabilistic framework to track its spatial location for each incoming event while using eye blinks to correct for drift and tracking errors. Results are shown for several indoor and outdoor experiments. We also release an annotated data set that can be used for future work on the topic."
@@ -38,7 +38,7 @@ selected = true
 #projects = ["example-external-project"]
 
 # Links (optional).
-url_pdf = "https://arxiv.org/pdf/1803.10106.pdf"
+url_pdf = "https://www.frontiersin.org/articles/10.3389/fnins.2020.00587/full"
 url_preprint = "https://arxiv.org/abs/1803.10106"
 #url_code = "#"
 url_dataset = "https://www.neuromorphic-vision.com/public/downloads/data-set-face-detection.tar.gz"
