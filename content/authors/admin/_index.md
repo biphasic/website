@@ -71,6 +71,6 @@ email: "mail@lenzgregor.com"
 highlight_name: true
 ---
 
-I am interested in the intersection of the human body and machines, which lead me to do a PhD in neuromorphic engineering. At the Vision institute in Paris, France I experimented with event-based sensors that are inspired by the human eye and spiking neural networks which mimic the way biological organisms process information. I love to build open source software which hopefully helps to accelerate research in that direction.
+The human body increasingly merges with machines that help combat diseases and prolong our lives. This is but the start of a long journey to merge organic and artificial systems. I graduated with a PhD in neuromorphic engineering from Sorbonne University because I think that technology can learn a thing or two from how biological systems process information to facilitate that symbiosis. I work with event cameras that are inspired by the human retina and spiking neural networks that mimic our brain in an effort to teach machines to compute a bit more like humans do. At the very least there are some power efficiency gains to be made, but hopefully more! I love to build open source software for spike-based machine learning!
 
 <!-- {{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/CV_public.pdf" "newtab" >}}resumé{{< /staticref >}}. -->
