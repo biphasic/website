@@ -205,16 +205,15 @@ df.iloc[2, 0] = timeit(lambda: gpu_training_loop(sinabs_model), number=1)
 df.iloc[5, 0] = timeit(lambda: gpu_training_loop(exodus_model), number=1)
 ```
 
-We're down to 16s per epoch for the EXODUS model, which is a ten-fold improvement over the original Sinabs model using the naïve dataloading approach! All this without any impact whatsoever on training performance. This number can easily be reduced further on a more powerful GPU, because since all the data is already there, we can unleash maximum throughput!
+{{< chart data="result3" >}}
 
+We're down to 16s per epoch for the EXODUS model, which is a ten-fold improvement over the original Sinabs model using the naïve dataloading approach! All this without any impact whatsoever on training performance. 
 
 ## Conclusion
 By using cached samples and not having to recompute the same transformations every time, we save ourselves a lot of time during training. If the data already sits on the GPU when it is requested, the speedup is really high. After all, there is a reason why neural network accelerators heavily optimise caching and reuse of data to minimise time and energy spent on data movement. So when should you use either disk- or GPU-caching?
 
 * Disk-caching: Broadly applicable, useful if you apply deterministic transformations to each sample and you train for many epochs. Not ideal if you're low on disk space.
 * GPU-caching: Only really suitable for small datasets and a bit more intricate to setup, but well worth the effort if you want to explore many different architectures / training parameters due to the speed of iteration.
-
-{{< chart data="result3" >}}
 
 As a last note, you might be wondering why we don't cache to the host memory instead of reading from a disk cache. This is totally possible, but the bottleneck at that point really is moving the data onto the GPU, which takes time. Whether the data sits in host memory or is loaded from disk using multiple worker threads doesn't make much of a difference, because the GPU cannot handle the data movement. Since on disk we have much more space available than in RAM, we normally choose to do that.
 
