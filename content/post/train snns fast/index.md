@@ -23,7 +23,7 @@ For this post we train an SNN using [Sinabs](https://github.com/synsense/sinabs)
 For all our benchmarks, we already assume multiple worker loading threads and pinning the GPU memory. We'll increase throughput by using different forms of caching to disk or GPU. By applying deterministic transformations upfront and saving the new tensor, we can save a lot of time during training. 
 This tutorial is run on a machine with Ubuntu 20.04, an Intel Core i7-8700K CPU @ 3.70GHz, a Samsung SSD 850 and an NVIDIA GeForce RTX 2070 GPU.
 
-All data from neuromorphic datasets in Tonic is provided as NxD numpy arrays. We'll need to transform this into a dense tensor to serve it to the GPU, and we'll also do some downsampling of time steps. Let's first define the transform. We know that samples of audio input data are 0.8-1.2s long across 700 frequency channels at microsecond resolution. We'll downsample each sample to 100 channels, bin events every 4 ms to one frame and cut samples that are longer than 1s. That leaves us with a maximum of 250 time steps per sample.
+All data from neuromorphic datasets in Tonic is provided as NxD numpy arrays. We'll need to transform this into a dense tensor to serve it to the GPU, and we'll also do some downsampling of time steps. Let's first define the transform. We know that samples of audio input data are 0.8-1.2s long across 700 frequency channels at microsecond resolution. We'll [downsample](https://tonic.readthedocs.io/en/latest/reference/generated/tonic.transforms.Downsample.html#tonic.transforms.Downsample) each sample to 100 channels, [bin](https://tonic.readthedocs.io/en/latest/reference/generated/tonic.transforms.ToFrame.html#tonic.transforms.ToFrame) events every 4 ms to one frame and [cut](https://tonic.readthedocs.io/en/latest/reference/generated/tonic.transforms.CropTime.html#tonic.transforms.CropTime) samples that are longer than 1s. That leaves us with a maximum of 250 time steps per sample.
 
 
 ```python
@@ -47,10 +47,9 @@ Next we'll import the training dataset and assign the transform.
 
 
 ```python
-import torch
-import tonic
+from tonic import datasets
 
-dense_dataset = tonic.datasets.SSC("./data", split="train", transform=dense_transform)
+dense_dataset = datasets.SSC("./data", split="train", transform=dense_transform)
 print(f"This dataset has {len(dense_dataset)} samples.")
 ```
 
@@ -65,6 +64,8 @@ dense_sample, dense_target = dense_dataset[0]
 
 import matplotlib.pyplot as plt
 
+plt.style.use("dark_background")
+plt.figure(facecolor='#23252f')
 plt.imshow(dense_sample.squeeze().T)
 plt.xlabel("Time step")
 plt.ylabel("Channel")
@@ -77,7 +78,7 @@ plt.title("Spoken digit label: " + dense_dataset.classes[dense_target].decode("a
     
 
 
-Let's also define a spiking model. We use a simple integrate-and-fire (IAF) feed-forward (Sequential) architecture. For each dataloading method, we're going to test two different models. One is a [Sinabs](https://sinabs.readthedocs.io) model which is pretty much pure PyTorch plus for loops and the second one is an [EXODUS](https://arxiv.org/abs/2205.10242) model, which is also based on PyTorch but vectorizes gradient computation across the time dimension using custom CUDA code. Both models compute the same activations and gradients, but the latter provides a significant speedup.
+Let's also define a spiking model. We use a simple integrate-and-fire (IAF) feed-forward architecture. For each dataloading method, we're going to test two different models. One is a [Sinabs](https://sinabs.readthedocs.io) model which is pretty much pure PyTorch plus for loops and the second one is an [EXODUS](https://arxiv.org/abs/2205.10242) model, which is also based on PyTorch but vectorizes gradient computation for the time dimension using custom CUDA code. Both models compute the same activations and gradients, but the latter provides a significant speedup.
 
 
 ```python
@@ -145,7 +146,7 @@ def training_loop(dataloader, model):
         data, targets = data.squeeze().cuda(), targets.cuda()
         sinabs.reset_states(model)
         output = model(data)
-        loss = torch.nn.functional.cross_entropy(output.sum(1), targets)
+        loss = nn.functional.cross_entropy(output.sum(1), targets)
         loss.backward()
 ```
 
@@ -163,8 +164,8 @@ exodus_results.append(
 )
 ```
 
-    100%|██████████| 589/589 [03:14<00:00,  3.04it/s]
-    100%|██████████| 589/589 [01:47<00:00,  5.49it/s]
+    100%|██████████| 589/589 [03:33<00:00,  2.76it/s]
+    100%|██████████| 589/589 [01:47<00:00,  5.46it/s]
 
 
 For the Sinabs model that's about 3 iterations/s, which is not very exciting. We can already see the huge speedup that EXODUS provides, essentially halving the computation time! Overall GPU utilisation rate is at ~70%, which means that a lot of the time the GPU just sits there idling, waiting for new data to arrive.
@@ -194,7 +195,7 @@ disk_cached_dataloader = DataLoader(disk_cached_dataset, **dataloader_kwargs)
 training_loop(disk_cached_dataloader, exodus_model)
 ```
 
-    100%|██████████| 589/589 [00:19<00:00, 30.37it/s]
+    100%|██████████| 589/589 [02:21<00:00,  4.17it/s]
 
 
 As anticipated this run is slower than the EXODUS run before, because the cache was written to disk under the hood, which takes time. Let's see training speeds after this is done.
@@ -215,8 +216,8 @@ exodus_results.append(
 )
 ```
 
-    100%|██████████| 589/589 [03:10<00:00,  3.09it/s]
-    100%|██████████| 589/589 [00:19<00:00, 30.70it/s]
+    100%|██████████| 589/589 [03:11<00:00,  3.08it/s]
+    100%|██████████| 589/589 [00:18<00:00, 31.30it/s]
 
 
 32 iterations/s? Now this is faster! Every epoch from now on will load data at this speed, at the expense of disk space. How much disk space does it cost you may ask? Let's compare the size of the original dataset and the cache folder...
@@ -278,7 +279,7 @@ sparse_tensor_dataloader = DataLoader(
 )
 ```
 
-    100%|██████████| 589/589 [00:23<00:00, 25.05it/s]
+    100%|██████████| 589/589 [00:23<00:00, 25.33it/s]
 
 
 The sparse tensor dataset takes about 5.7 GB of GPU memory. Not exactly efficient, but also not terrible. What about training speeds?
@@ -290,7 +291,7 @@ def gpu_training_loop(model):
         data = data.to_dense()
         sinabs.reset_states(model)
         output = model(data)
-        loss = torch.nn.functional.cross_entropy(output.sum(1), targets)
+        loss = nn.functional.cross_entropy(output.sum(1), targets)
         loss.backward()
 ```
 
@@ -305,7 +306,7 @@ exodus_results.append(
 ```
 
     100%|██████████| 589/589 [03:12<00:00,  3.06it/s]
-    100%|██████████| 589/589 [00:16<00:00, 35.63it/s]
+    100%|██████████| 589/589 [00:16<00:00, 35.62it/s]
 
 
 We're down to 16s per iteration for the EXODUS model, which is a ten-fold improvement over the original Sinabs model using the naïve dataloading approach! All this without any impact whatsoever on training performance. 
@@ -335,6 +336,8 @@ df = pd.DataFrame(
 ```python
 import seaborn as sns
 
+plt.style.use("dark_background")
+plt.figure(facecolor='#23252f')
 sns.barplot(data=df, x="Dataloading", y="Training loop time (s)", hue="Backend").set(
     title="Training SNNs faster"
 );
