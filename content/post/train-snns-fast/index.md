@@ -139,18 +139,8 @@ df = pd.DataFrame(
 ```python
 from timeit import timeit
 
-df.iloc[0, 0] = 20
-df.iloc[3, 0] = 10
-# df.iloc[0, 0] = timeit(lambda: training_loop(naive_dataloader, sinabs_model), number=1)
-# df.iloc[3, 0] = timeit(lambda: training_loop(naive_dataloader, exodus_model), number=1)
-```
-
-
-```python
-import plotly.express as px
-
-fig = px.bar(df, x="Dataloading method", y="Training loop time (s)", color="Model", template="plotly_dark", barmode="group", title="Training SNNs faster")
-# fig.write_json("result1.json");
+df.iloc[0, 0] = timeit(lambda: training_loop(naive_dataloader, sinabs_model), number=1)
+df.iloc[3, 0] = timeit(lambda: training_loop(naive_dataloader, exodus_model), number=1)
 ```
 
 {{< chart data="result1" >}}
@@ -177,12 +167,7 @@ disk_cached_dataset = tonic.DiskCachedDataset(
 disk_cached_dataloader = DataLoader(disk_cached_dataset, **dataloader_kwargs)
 ```
 
-
-```python
-training_loop(disk_cached_dataloader, exodus_model)
-```
-
-As anticipated this run is slower than the EXODUS run before, because the cache was written to disk under the hood, which takes time. Let's see training speeds after this is done.
+The first run is slower than before, because the cache is written to disk under the hood, which takes time. Let's see training speeds after this is done.
 
 
 ```python
@@ -194,25 +179,9 @@ df.iloc[4, 0] = timeit(
 )
 ```
 
+{{< chart data="result2" >}}
+
 32 iterations/s? Now this is faster! Every epoch from now on will load data at this speed, at the expense of disk space. How much disk space does it cost you may ask? The size of the original dataset file is 2.65 GB compared to the generated cache folder with 1.04 GB, which is quite efficient!
-
-
-```python
-from pathlib import Path
-
-calculate_folder_size = (
-    lambda path: sum(
-        f.stat().st_size for f in Path(path).glob("**/*.h*5") if f.is_file()
-    )
-    / 1e9
-)
-size_orig_dataset = calculate_folder_size("data")
-size_cache_folder = calculate_folder_size("cache")
-
-print(
-    f"The size of the original dataset file is {round(size_orig_dataset, 2)} GB compared to the generated cache folder with {round(size_cache_folder, 2)} GB."
-)
-```
 
 This is quite efficient. The original dataset in this case contained numpy events, whereas the cache folder contains dense tensors. We can compress the dense tensors that much because by default Tonic uses lightweight compression during caching. So overall, disk-caching is generally applicable when training SNNs because it saves you the time to transform your events to dense tensors. Of course you could apply any other deterministic transform before caching it, and also easily apply augmentations to the cached samples as described in [this tutorial](https://tonic.readthedocs.io/en/latest/tutorials/fast_dataloading.html)!
 
@@ -229,26 +198,6 @@ We can go even faster! Instead of loading dense tensors from disk, we can try to
   alt="Disk caching">
   <figcaption>Figure 3: During the first epoch, transformed samples are loaded onto the GPU and stored in a list of sparse tensors. Whenever a new sample is needed, is is inflated by to_dense() and fed to the network. This process is almost instantaneous and now bound by what your model can process.</figcaption>
 </figure>
-
-
-```python
-data_list = []
-target_list = []
-for data, targets in iter(disk_cached_dataloader):
-    data_list.extend(
-        list(map(lambda x: x.squeeze().to_sparse().coalesce().cuda(), data))
-    )
-    target_list.extend(list(map(lambda x: x.byte().cuda(), targets)))
-
-sparse_tensor_dataset = list(zip(data_list, target_list))
-
-# Samples that are already on the GPU can only be retrieved in a single thread currently
-dataloader_kwargs.pop("num_workers")
-dataloader_kwargs.pop("pin_memory")
-sparse_tensor_dataloader = DataLoader(
-    sparse_tensor_dataset, **dataloader_kwargs, num_workers=0
-)
-```
 
 The sparse tensor dataset takes about 5.7 GB of GPU memory. Not exactly efficient, but also not terrible. What about training speeds?
 
@@ -278,7 +227,6 @@ By using cached samples and not having to recompute the same transformations eve
 * Disk-caching: Broadly applicable, useful if you apply deterministic transformations to each sample and you train for many epochs. Not ideal if you're low on disk space.
 * GPU-caching: Only really suitable for small datasets and a bit more intricate to setup, but well worth the effort if you want to explore many different architectures / training parameters due to the speed of iteration.
 
+{{< chart data="result3" >}}
 
-```python
-
-```
+Acknowledgements: Thanks a lot to Omar Oubari for the nice feedback, as always.
