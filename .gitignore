@@ -11,4 +11,6 @@ go.sum
 
 
 content/post/**/data
+content/posts/**/data
 content/post/**/cache
+content/posts/**/cache
