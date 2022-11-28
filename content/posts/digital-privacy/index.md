@@ -1,6 +1,8 @@
 ---
 title: "Why digital privacy matters."
 
+commentable: true
+
 date: 2020-02-03
 lastmod: 2020-07-26
 draft: false

@@ -1,6 +1,8 @@
 ---
 title: "Rethinking the way our cameras see."
 
+commentable: true
+
 date: 2020-04-10
 lastmod: 2020-04-14
 draft: false

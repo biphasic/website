@@ -47,9 +47,9 @@ social:
 - icon: twitter
   icon_pack: fab
   link: https://twitter.com/gregorlenz
-- icon: fa-mastodon
-  icon_pack: fa-brands
-  link: https://fosstodon.org/biphasic
+- icon: mastodon
+  icon_pack: fab
+  link: https://fosstodon.org/@biphasic
 - icon: graduation-cap  # Alternatively, use `google-scholar` icon from `ai` icon pack
   icon_pack: fas
   link: https://scholar.google.com/citations?user=aqahOiAAAAAJ

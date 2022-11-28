@@ -1,6 +1,8 @@
 ---
 title: "Training spiking neural networks, fast."
 
+commentable: true
+
 date: 2022-11-27
 lastmod: 2022-11-27
 draft: false
