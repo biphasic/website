@@ -47,11 +47,7 @@ dense_dataset = datasets.SSC("./data", split="train", transform=dense_transform)
 
 Let's plot one such dense tensor sample:
 
-
-    
-![png](index_files/index_6_0.png)
-    
-
+{{< chart data="result0" >}}
 
 Next we define a spiking model. We use a simple integrate-and-fire (IAF) feed-forward architecture. For each dataloading method, we're going to test two different models. One is a [Sinabs](https://sinabs.readthedocs.io) model which is pretty much pure PyTorch plus for loops and the second one is an [EXODUS](https://github.com/synsense/sinabs-exodus) model, which is also based on PyTorch but vectorizes gradient computation for the time dimension using custom CUDA code. Both models compute the same activations and gradients, but the latter provides a significant speedup.
 
@@ -86,7 +82,7 @@ For the first benchmark we load every sample from an hdf5 file on disk which pro
 
 <figure>
   <img
-  src="images/caching1.png"
+  src="images/caching1.svg"
   alt="Naïve caching">
   <figcaption>Figure 1: For every sample, we apply our transform ToFrame. The speed depends a lot on the CPU and the amount of worker threads used.</figcaption>
 </figure>
@@ -138,7 +134,7 @@ Let's try to be a bit smarter now. ToFrame is a deterministic transform, so for 
 
 <figure>
   <img
-  src="images/caching2.png"
+  src="images/caching2.svg"
   alt="Disk caching">
   <figcaption>Figure 2: During the first epoch, samples are transformed and then cached to disk. Afterwards, the transformed sample is loaded from disk straight away.</figcaption>
 </figure>
@@ -181,9 +177,9 @@ Instead of loading dense tensors from disk, we can try to cram all our dataset o
 
 <figure>
   <img
-  src="images/caching3.png"
+  src="images/caching3.svg"
   alt="Disk caching">
-  <figcaption>Figure 3: During the first epoch, transformed samples are loaded onto the GPU and stored in a list of sparse tensors. Whenever a new sample is needed, is is inflated by to_dense() and fed to the network. This process is almost instantaneous and now bound by what your model can process.</figcaption>
+  <figcaption>Figure 3: During the first epoch, transformed samples are loaded onto the GPU and stored in a list of sparse tensors. Whenever a new sample is needed, it is inflated by to_dense() and fed to the network. This process is almost instantaneous and now bound by what your model can process.</figcaption>
 </figure>
 
 The sparse tensor dataset takes about 5.7 GB of GPU memory. Not exactly efficient, but also not terrible. What about training speeds?
