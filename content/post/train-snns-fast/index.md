@@ -121,8 +121,8 @@ def training_loop(dataloader, model):
 ```python
 from timeit import timeit
 
-df.iloc[0, 0] = timeit(lambda: training_loop(naive_dataloader, sinabs_model), number=1)
-df.iloc[3, 0] = timeit(lambda: training_loop(naive_dataloader, exodus_model), number=1)
+time1 = timeit(lambda: training_loop(naive_dataloader, sinabs_model), number=1)
+time2 = timeit(lambda: training_loop(naive_dataloader, exodus_model), number=1)
 ```
 
 {{< chart data="result1" >}}
@@ -152,12 +152,8 @@ disk_cached_dataloader = DataLoader(disk_cached_dataset, **dataloader_kwargs)
 
 ```python
 # cache on disk already available
-df.iloc[1, 0] = timeit(
-    lambda: training_loop(disk_cached_dataloader, sinabs_model), number=1
-)
-df.iloc[4, 0] = timeit(
-    lambda: training_loop(disk_cached_dataloader, exodus_model), number=1
-)
+time3 = timeit(lambda: training_loop(disk_cached_dataloader, sinabs_model), number=1)
+time4 = timeit(lambda: training_loop(disk_cached_dataloader, exodus_model), number=1)
 ```
 
 {{< chart data="result2" >}}
@@ -197,8 +193,8 @@ def gpu_training_loop(model):
 
 
 ```python
-df.iloc[2, 0] = timeit(lambda: gpu_training_loop(sinabs_model), number=1)
-df.iloc[5, 0] = timeit(lambda: gpu_training_loop(exodus_model), number=1)
+time5 = timeit(lambda: gpu_training_loop(sinabs_model), number=1)
+time6 = timeit(lambda: gpu_training_loop(exodus_model), number=1)
 ```
 
 {{< chart data="result3" >}}
