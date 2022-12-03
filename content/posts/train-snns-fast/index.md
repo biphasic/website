@@ -4,11 +4,11 @@ title: "Training spiking neural networks, fast."
 commentable: true
 
 date: 2022-11-27
-lastmod: 2022-11-27
+lastmod: 2022-12-03
 draft: false
 
 tags: ["SNN"]
-summary: "How to use caching and EXODUS to speed up training by a factor of 10."
+summary: "How to use caching and EXODUS to speed up training by a factor of more than 10."
 ---
 
 When training a spiking neural network (SNN), one might think about how the learning rate or model size affect training time. But when it comes to training *faster*, optimizing data movement is crucial. 3 out of the first 4 points in [this list](https://www.reddit.com/r/MachineLearning/comments/kvs1ex/d_here_are_17_ways_of_making_pytorch_training/) weighted after potential speed-up have to do with how data is shaped and moved around between actual computations. It makes a huge difference, because training faster means getting results faster!
