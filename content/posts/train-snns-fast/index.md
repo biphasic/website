@@ -211,6 +211,6 @@ The principle of caching can be applied to any data that you apply deterministic
 
 As a last note, you might be wondering why we don't cache to the host memory instead of reading from a disk cache. This is totally possible, but the bottleneck at that point really is moving the data onto the GPU, which takes time. Whether the data sits in host memory or is loaded from disk using multiple worker threads doesn't make much of a difference, because the GPU cannot handle the data movement. Since on disk we have much more space available than in RAM, we normally choose to do that.
 
-This tutorial is available [here](https://github.com/biphasic/snn-training-templates) for you to run, where you'll also find some other training templates.
+This tutorial is available [here](https://github.com/biphasic/snn-training-templates/blob/main/posts/training-snns-faster/index.ipynb) for you to run, where you'll also find some other training templates.
 
 Acknowledgements: Thanks a lot to Omar Oubari, Mina Khoei and Fabrizio Ottati for the feedback.
