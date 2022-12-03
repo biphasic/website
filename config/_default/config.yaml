@@ -4,7 +4,7 @@
 # This file is formatted using YAML syntax - learn more at https://learnxinyminutes.com/docs/yaml/
 
 title: Gregor Lenz # Website name
-baseURL: 'https://lenzgregor.com/site/' # Website URL
+baseURL: 'https://lenzgregor.com/' # Website URL
 
 ############################
 ## LANGUAGE
