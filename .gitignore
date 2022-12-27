@@ -10,7 +10,8 @@ go.sum
 .hugo_build.lock
 
 
-content/post/**/data
 content/posts/**/data
-content/post/**/cache
 content/posts/**/cache
+content/posts/**/metadata
+lightning_logs
+__pycache__
