@@ -38,7 +38,7 @@ class DVSGesture(pl.LightningDataModule):
         preprocess: Optional[Iterable[Callable]] = None,
         preprocess2: Optional[Iterable[Callable]] = None,
         augmentation: Optional[Iterable[Callable]] = None,
-        slicer: Optional[tonic.slicers.SliceByEventCount] = None,
+        slicer: Optional[tonic.slicers.Slicer] = None,
         cache_path: str = "cache",
         metadata_path: str = "metadata",
         num_workers: int = 4,

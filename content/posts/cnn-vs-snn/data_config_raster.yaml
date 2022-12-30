@@ -1,0 +1,32 @@
+batch_size: 128
+data_dir: data
+preprocess:
+  - class_path: tonic.transforms.CropTime
+    init_args:
+      max: 1_500_000
+  - class_path: tonic.transforms.Downsample
+    init_args:
+      time_factor: 1.0
+      spatial_factor: 0.5
+slicer:
+  class_path: tonic.slicers.SliceByTime
+  init_args:
+    time_window: 250_000
+preprocess2:
+  - class_path: tonic.transforms.ToFrame
+    init_args:
+      sensor_size: [64, 64, 2]
+      time_window: 5000
+      include_incomplete: true
+augmentation:
+  - class_path: torchvision.transforms.RandomPerspective
+    init_args:
+      distortion_scale: 0.5
+      p: 0.5
+  - class_path: torchvision.transforms.RandomErasing
+    init_args:
+      p: 0.5
+      scale: [0.02, 0.2]
+cache_path: cache/raster
+metadata_path: metadata/raster
+num_workers: 4
