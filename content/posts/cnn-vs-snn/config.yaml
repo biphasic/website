@@ -3,6 +3,7 @@ seed_everything: 123
 model:
   lr: 0.001
   num_classes: 11
+  batch_size: 128
 trainer:
   accelerator: gpu
   devices: 1

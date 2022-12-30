@@ -109,6 +109,7 @@ class DVSGesture(pl.LightningDataModule):
             batch_size=self.hparams.batch_size,
             shuffle=True,
             prefetch_factor=4,
+            drop_last=True,
         )
 
     def val_dataloader(self):
@@ -117,6 +118,7 @@ class DVSGesture(pl.LightningDataModule):
             num_workers=self.hparams.num_workers,
             batch_size=self.hparams.batch_size,
             prefetch_factor=4,
+            drop_last=True,
         )
 
     def test_dataloader(self):

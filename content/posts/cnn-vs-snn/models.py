@@ -95,7 +95,7 @@ class CNN(pl.LightningModule):
 
 
 class SNN(pl.LightningModule):
-    def __init__(self, lr: float, batch_size: int, num_classes: int, *args, **kwargs):
+    def __init__(self, lr: float, batch_size: int, num_classes: int):
         super().__init__()
         self.save_hyperparameters()
         cnn = GestureClassifier(num_classes=num_classes)
@@ -105,6 +105,7 @@ class SNN(pl.LightningModule):
         self.flatten_time = sl.FlattenTime()
         self.model = sinabs.from_torch.from_model(
             cnn,
+            batch_size=batch_size,
             spike_fn=sina.MultiSpike,
             surrogate_grad_fn=sina.SingleExponential(),
             backend="exodus",
