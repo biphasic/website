@@ -1,10 +1,9 @@
 import hashlib
 import os
-import torch
 from typing import Callable, Iterable, Optional
 
-import numpy as np
 import pytorch_lightning as pl
+import tonic
 from tonic import (
     DiskCachedDataset,
     MemoryCachedDataset,
@@ -13,7 +12,6 @@ from tonic import (
     transforms,
 )
 from torch.utils.data import DataLoader
-import tonic
 
 
 class DVSGesture(pl.LightningDataModule):
@@ -21,30 +19,39 @@ class DVSGesture(pl.LightningDataModule):
     Parameters:
         batch_size: How many images to bundle up in one mini batch.
         data_dir: Path that points to the dataset folder.
-        preprocess: An optional list of callables that will be applied to each sample before slicing the dataset.
-        preprocess2: An optional list of callables that will be applied to each sliced sample, before caching.
+        pre_slicing_transform: An optional list of callables that will be applied to each sample before slicing the dataset.
+        post_slicing_transform: An optional list of callables that will be applied to each sliced sample, before caching.
         augmentation: An optional list of callables that will be applied to each cached sample before feeding it to the model.
         slicer: An optional Tonic slicer callable that decides how to cut one recording into smaller samples, for example based on time or a number of events.
         cache_path: Where to store cached versions of all the frames.
         metadata_path: Store metadata about how recordings are sliced in individual samples.
                        Providing the path to store the metadata saves time when loading the dataset the next time.
         num_workers: The number of threads for the dataloader.
+        prefetch_factor: The prefetch_factor arg of the dataloader, numbers of batches loaded in advance by each worker.
+        data_loader_collate_fn: The collate_fn arg of the dataloader, which defines how to group a batch of data together
     """
 
     def __init__(
         self,
         batch_size: int,
         data_dir: str = "data",
-        preprocess: Optional[Iterable[Callable]] = None,
-        preprocess2: Optional[Iterable[Callable]] = None,
+        pre_slicing_transform: Optional[Iterable[Callable]] = None,
+        post_slicing_transform: Optional[Iterable[Callable]] = None,
         augmentation: Optional[Iterable[Callable]] = None,
         slicer: Optional[tonic.slicers.Slicer] = None,
         cache_path: str = "cache",
         metadata_path: str = "metadata",
         num_workers: int = 4,
+        prefetch_factor: int = 4,
+        data_loader_collate_fn: Optional[Callable] = None,
     ):
         super().__init__()
         self.save_hyperparameters()
+        print(
+            f"Your deterministic transforms are as follows:\nPre-slicing\n\t{pre_slicing_transform}"
+            + f"\nSlicer\n\t{slicer}\nPost-Slicing\n\t{post_slicing_transform}\n"
+            + f"If you changed a parameter and it doesn't show up here, the cache path will not change!"
+        )
 
     def prepare_data(self):
         """Download and unpack data if not already available."""
@@ -58,44 +65,43 @@ class DVSGesture(pl.LightningDataModule):
         )
 
     def get_train_or_testset(self, train: bool):
+        compose = lambda x: transforms.Compose(x) if x is not None else None
         dataset = datasets.DVSGesture(
             save_to=self.hparams.data_dir,
             train=train,
-            transform=transforms.Compose(self.hparams.preprocess),
+            transform=compose(self.hparams.pre_slicing_transform),
         )
 
         dataset = MemoryCachedDataset(dataset=dataset)
 
-        to_float = lambda x: x.astype(np.float32)
-        dataset = SlicedDataset(
-            dataset=dataset,
-            slicer=self.hparams.slicer,
-            metadata_path=os.path.join(
-                self.hparams.metadata_path,
-                "train" if train else "test",
-                hashlib.md5(
-                    (str(self.hparams.preprocess) + str(self.hparams.slicer)).encode(
-                        "utf-8"
-                    )
-                ).hexdigest(),
-            ),
-            transform=transforms.Compose(self.hparams.preprocess2 + [to_float]),
-        )
+        hash_fn = lambda x: hashlib.md5((x).encode("utf-8")).hexdigest()
+        if self.hparams.slicer is not None:
+            dataset = SlicedDataset(
+                dataset=dataset,
+                slicer=self.hparams.slicer,
+                metadata_path=os.path.join(
+                    self.hparams.metadata_path,
+                    "train" if train else "test",
+                    hash_fn(
+                        str(self.hparams.pre_slicing_transform)
+                        + str(self.hparams.slicer)
+                    ),
+                ),
+                transform=compose(self.hparams.post_slicing_transform),
+            )
 
-        to_tensor = lambda x: torch.as_tensor(x)
         return DiskCachedDataset(
             dataset=dataset,
             cache_path=os.path.join(
                 self.hparams.cache_path,
                 "train" if train else "test",
-                hashlib.md5(
-                    (
-                        str(self.hparams.preprocess + self.hparams.preprocess2)
-                        + str(self.hparams.slicer)
-                    ).encode("utf-8")
-                ).hexdigest(),
+                hash_fn(
+                    str(self.hparams.pre_slicing_transform)
+                    + str(self.hparams.post_slicing_transform)
+                    + str(self.hparams.slicer)
+                ),
             ),
-            transform=transforms.Compose([to_tensor] + self.hparams.augmentation),
+            transform=compose(self.hparams.augmentation) if train else None,
         )
 
     def setup(self, stage=None):
@@ -108,8 +114,9 @@ class DVSGesture(pl.LightningDataModule):
             num_workers=self.hparams.num_workers,
             batch_size=self.hparams.batch_size,
             shuffle=True,
-            prefetch_factor=4,
+            prefetch_factor=self.hparams.prefetch_factor,
             drop_last=True,
+            collate_fn=self.hparams.data_loader_collate_fn,
         )
 
     def val_dataloader(self):
@@ -117,8 +124,9 @@ class DVSGesture(pl.LightningDataModule):
             dataset=self.valid_data,
             num_workers=self.hparams.num_workers,
             batch_size=self.hparams.batch_size,
-            prefetch_factor=4,
+            prefetch_factor=self.hparams.prefetch_factor,
             drop_last=True,
+            collate_fn=self.hparams.data_loader_collate_fn,
         )
 
     def test_dataloader(self):

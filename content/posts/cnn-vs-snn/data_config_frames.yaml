@@ -1,6 +1,6 @@
 batch_size: 128
 data_dir: data
-preprocess:
+pre_slicing_transform:
   - class_path: tonic.transforms.CropTime
     init_args:
       max: 1_500_000
@@ -8,11 +8,17 @@ preprocess:
     init_args:
       time_factor: 1.0
       spatial_factor: 0.5
-preprocess2:
+slicer:
+  class_path: tonic.slicers.SliceByEventCount
+  init_args:
+    event_count: 750
+post_slicing_transform:
   - class_path: tonic.transforms.ToImage
     init_args:
       sensor_size: [64, 64, 2]
+  - class_path: vision_team.augmentations.frame_based_augmentations.ToFloat
 augmentation:
+  - class_path: vision_team.augmentations.frame_based_augmentations.ToTensor
   - class_path: torchvision.transforms.RandomPerspective
     init_args:
       distortion_scale: 0.5
@@ -21,10 +27,6 @@ augmentation:
     init_args:
       p: 0.5
       scale: [0.02, 0.2]
-slicer:
-  class_path: tonic.slicers.SliceByEventCount
-  init_args:
-    event_count: 750
 cache_path: cache/frames
 metadata_path: metadata/frames
 num_workers: 4

@@ -1,9 +1,12 @@
-# pytorch_lightning==1.8.3.post1
+# pytorch_lightning==1.9.0
 seed_everything: 123
 model:
-  lr: 0.001
   num_classes: 11
   batch_size: 128
+optimizer:
+  class_path: torch.optim.Adam
+  init_args:
+    lr: 0.001
 trainer:
   accelerator: gpu
   devices: 1
@@ -16,7 +19,6 @@ trainer:
   num_nodes: 1
   num_processes: null
   gpus: null
-  auto_select_gpus: false
   tpu_cores: null
   ipus: null
   enable_progress_bar: true
@@ -50,8 +52,6 @@ trainer:
   detect_anomaly: false
   auto_scale_batch_size: false
   plugins: null
-  amp_backend: native
-  amp_level: null
   move_metrics_to_cpu: false
   multiple_trainloader_mode: max_size_cycle
   inference_mode: true
