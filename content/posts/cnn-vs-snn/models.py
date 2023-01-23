@@ -1,8 +1,6 @@
 import pytorch_lightning as pl
 import sinabs
 import sinabs.activation as sina
-import sinabs.layers as sl
-import torch
 import torch.nn as nn
 import torchmetrics
 from torch.nn import functional as F
@@ -19,40 +17,41 @@ except ImportError:
 
 class GestureClassifier(nn.Sequential):
     def __init__(self, num_classes: int):
+        bias = True
         super().__init__(
-            nn.Conv2d(2, 16, kernel_size=2, stride=2, bias=False),
+            nn.Conv2d(2, 8, kernel_size=2, stride=2, bias=bias),
             nn.ReLU(),
             # core 1
-            nn.Conv2d(16, 16, kernel_size=3, padding=1, bias=False),
+            nn.Conv2d(8, 16, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             # core 2
-            nn.Conv2d(16, 32, kernel_size=3, padding=1, bias=False),
+            nn.Conv2d(16, 32, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             # core 7
-            nn.Conv2d(32, 32, kernel_size=3, padding=1, bias=False),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             # core 4
-            nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             # core 5
-            # nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False),
+            # nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=bias),
             # nn.ReLU(),
             # nn.AvgPool2d(kernel_size=2, stride=2),
             # core 6
             nn.Dropout2d(0.5),
-            nn.Conv2d(64, 256, kernel_size=2, bias=False),
+            nn.Conv2d(128, 256, kernel_size=2, bias=bias),
             nn.ReLU(),
             # core 3
             nn.Dropout2d(0.5),
             nn.Flatten(),
-            nn.Linear(256, 128, bias=False),
+            nn.Linear(256, 128, bias=bias),
             nn.ReLU(),
             # core 8
-            nn.Linear(128, num_classes, bias=False),
+            nn.Linear(128, num_classes, bias=bias),
         )
 
 
@@ -142,9 +141,10 @@ class SNN(pl.LightningModule):
             cnn,
             batch_size=batch_size,
             spike_fn=sina.MultiSpike,
-            surrogate_grad_fn=sina.SingleExponential(),
+            surrogate_grad_fn=sina.PeriodicExponential(),
             spike_layer_class=IAFSqueeze,
             min_v_mem=None,
+            spike_threshold=0.25,
         ).spiking_model
 
     def forward(self, x):
@@ -166,7 +166,9 @@ class SNN(pl.LightningModule):
         loss = F.cross_entropy(y_hat, y)
         self.log("loss/valid", loss)
         self.valid_accuracy(y_hat, y)
+        # import ipdb; ipdb.set_trace()
         self.log("accuracy/valid", self.valid_accuracy, prog_bar=True)
+        self.conf_matrix.update(y_hat, y)
 
     def on_validation_epoch_end(self) -> None:
         matrix = self.conf_matrix.compute()
