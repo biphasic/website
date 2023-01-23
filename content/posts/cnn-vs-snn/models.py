@@ -1,18 +1,18 @@
 import pytorch_lightning as pl
 import sinabs
 import sinabs.activation as sina
+import tonic
 import torch.nn as nn
 import torchmetrics
+from mlxtend.plotting import plot_confusion_matrix
 from torch.nn import functional as F
 from torchmetrics.classification import MulticlassConfusionMatrix
-import tonic
-from mlxtend.plotting import plot_confusion_matrix
+
 try:
     from sinabs.exodus.layers import IAFSqueeze
 except ImportError:
     print("Exodus not available.")
     from sinabs.layers import IAFSqueeze
-
 
 
 class GestureClassifier(nn.Sequential):
@@ -75,7 +75,7 @@ class CNN(pl.LightningModule):
             num_classes=num_classes,
         )
         self.conf_matrix = MulticlassConfusionMatrix(
-            num_classes=num_classes, # normalize="true",
+            num_classes=num_classes,  # normalize="true",
         )
 
     def forward(self, x):
@@ -135,7 +135,7 @@ class SNN(pl.LightningModule):
             num_classes=num_classes,
         )
         self.conf_matrix = MulticlassConfusionMatrix(
-            num_classes=num_classes, # normalize="true",
+            num_classes=num_classes,  # normalize="true",
         )
         self.model = sinabs.from_torch.from_model(
             cnn,
