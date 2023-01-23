@@ -9,6 +9,12 @@ from torch.nn import functional as F
 from torchmetrics.classification import MulticlassConfusionMatrix
 import tonic
 from mlxtend.plotting import plot_confusion_matrix
+try:
+    from sinabs.exodus.layers import IAFSqueeze
+except ImportError:
+    print("Exodus not available.")
+    from sinabs.layers import IAFSqueeze
+
 
 
 class GestureClassifier(nn.Sequential):
@@ -70,7 +76,7 @@ class CNN(pl.LightningModule):
             num_classes=num_classes,
         )
         self.conf_matrix = MulticlassConfusionMatrix(
-            normalize="true", num_classes=num_classes
+            num_classes=num_classes, # normalize="true",
         )
 
     def forward(self, x):
@@ -100,7 +106,7 @@ class CNN(pl.LightningModule):
             show_absolute=False,
             show_normed=True,
             colorbar=True,
-            figsize=(6, 9),
+            figsize=(8, 6),
         )
         figure.tight_layout()
         self.logger.experiment.add_figure(
@@ -118,7 +124,7 @@ class CNN(pl.LightningModule):
 
 
 class SNN(pl.LightningModule):
-    def __init__(self, lr: float, batch_size: int, num_classes: int):
+    def __init__(self, num_classes: int, batch_size: int):
         super().__init__()
         self.save_hyperparameters()
         cnn = GestureClassifier(num_classes=num_classes)
@@ -129,25 +135,23 @@ class SNN(pl.LightningModule):
             task="multiclass",
             num_classes=num_classes,
         )
-        self.flatten_time = sl.FlattenTime()
+        self.conf_matrix = MulticlassConfusionMatrix(
+            num_classes=num_classes, # normalize="true",
+        )
         self.model = sinabs.from_torch.from_model(
             cnn,
             batch_size=batch_size,
             spike_fn=sina.MultiSpike,
             surrogate_grad_fn=sina.SingleExponential(),
-            spike_layer_class=sinabs.exodus.layers.IAF,
+            spike_layer_class=IAFSqueeze,
             min_v_mem=None,
         ).spiking_model
-        self.unflatten_time = sl.UnflattenTime(batch_size=batch_size)
 
     def forward(self, x):
         sinabs.reset_states(self.model)
         batch_size, num_timesteps = x.shape[:2]
         x = self.model(x.flatten(0, 1))
         return x.unflatten(0, (batch_size, num_timesteps))
-        # x = self.flatten_time(x)
-        # x = self.model(x)
-        # return self.unflatten_time(x)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -164,12 +168,26 @@ class SNN(pl.LightningModule):
         self.valid_accuracy(y_hat, y)
         self.log("accuracy/valid", self.valid_accuracy, prog_bar=True)
 
+    def on_validation_epoch_end(self) -> None:
+        matrix = self.conf_matrix.compute()
+        figure, _ = plot_confusion_matrix(
+            conf_mat=matrix.cpu().numpy(),
+            class_names=tonic.datasets.DVSGesture.classes,
+            show_absolute=False,
+            show_normed=True,
+            colorbar=True,
+            figsize=(8, 6),
+        )
+        figure.tight_layout()
+        self.logger.experiment.add_figure(
+            "confusion matrix", figure=figure, global_step=self.global_step
+        )
+        self.conf_matrix.reset()
+        return super().on_validation_epoch_end()
+
     def test_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x).sum(1)
         self.test_accuracy(y_hat, y)
         self.log("accuracy/test", self.test_accuracy, prog_bar=True)
         self.log("hp_metric", self.test_accuracy)
-
-    def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
