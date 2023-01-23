@@ -2,7 +2,6 @@
 seed_everything: 123
 model:
   num_classes: 11
-  batch_size: 128
 optimizer:
   class_path: torch.optim.Adam
   init_args:
