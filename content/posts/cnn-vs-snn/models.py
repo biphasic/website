@@ -19,8 +19,9 @@ class GestureClassifier(nn.Sequential):
     def __init__(self, num_classes: int):
         bias = True
         super().__init__(
-            nn.Conv2d(2, 8, kernel_size=2, stride=2, bias=bias),
+            nn.Conv2d(2, 8, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
+            nn.AvgPool2d(kernel_size=2, stride=2),
             # core 1
             nn.Conv2d(8, 16, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
@@ -33,24 +34,12 @@ class GestureClassifier(nn.Sequential):
             nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
-            # core 4
-            nn.Conv2d(64, 128, kernel_size=3, padding=1, bias=bias),
+            nn.Conv2d(64, 256, kernel_size=4, bias=bias),
             nn.ReLU(),
-            nn.AvgPool2d(kernel_size=2, stride=2),
-            # core 5
-            # nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=bias),
-            # nn.ReLU(),
-            # nn.AvgPool2d(kernel_size=2, stride=2),
-            # core 6
-            nn.Dropout2d(0.5),
-            nn.Conv2d(128, 256, kernel_size=2, bias=bias),
-            nn.ReLU(),
-            # core 3
-            nn.Dropout2d(0.5),
             nn.Flatten(),
             nn.Linear(256, 128, bias=bias),
             nn.ReLU(),
-            # core 8
+            # # core 8
             nn.Linear(128, num_classes, bias=bias),
         )
 
@@ -135,13 +124,13 @@ class SNN(pl.LightningModule):
             num_classes=num_classes,
         )
         self.conf_matrix = MulticlassConfusionMatrix(
-            num_classes=num_classes,  # normalize="true",
+            num_classes=num_classes,
         )
         self.model = sinabs.from_torch.from_model(
             cnn,
             batch_size=batch_size,
-            spike_fn=sina.MultiSpike,
-            surrogate_grad_fn=sina.PeriodicExponential(),
+            spike_fn=sina.SingleSpike,
+            surrogate_grad_fn=sina.SingleExponential(),
             spike_layer_class=IAFSqueeze,
             min_v_mem=None,
             spike_threshold=0.25,
