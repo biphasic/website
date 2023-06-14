@@ -18,28 +18,27 @@ except ImportError:
 class GestureClassifier(nn.Sequential):
     def __init__(self, num_classes: int):
         bias = True
+        dropout_p=0.3
         super().__init__(
             nn.Conv2d(2, 8, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
-            # core 1
             nn.Conv2d(8, 16, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
-            # core 2
             nn.Conv2d(16, 32, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
-            # core 7
             nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
             nn.Conv2d(64, 256, kernel_size=4, bias=bias),
+            nn.Dropout2d(p=dropout_p),
             nn.ReLU(),
             nn.Flatten(),
             nn.Linear(256, 128, bias=bias),
+            nn.Dropout(p=dropout_p),
             nn.ReLU(),
-            # # core 8
             nn.Linear(128, num_classes, bias=bias),
         )
 
@@ -48,7 +47,6 @@ class CNN(pl.LightningModule):
     """A simple CNN which uses the GestureClassifier as a backend.
 
     Parameters:
-        lr: The learning rate.
         num_classes: The number of output neurons / classes.
     """
 

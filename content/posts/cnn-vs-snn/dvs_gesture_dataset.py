@@ -42,7 +42,7 @@ class DVSGesture(pl.LightningDataModule):
         cache_path: str = "cache",
         metadata_path: str = "metadata",
         num_workers: int = 4,
-        prefetch_factor: int = 4,
+        prefetch_factor: int = 2,
         data_loader_collate_fn: Optional[Callable] = None,
     ):
         super().__init__()
@@ -72,7 +72,7 @@ class DVSGesture(pl.LightningDataModule):
             transform=compose(self.hparams.pre_slicing_transform),
         )
 
-        dataset = MemoryCachedDataset(dataset=dataset)
+        # dataset = MemoryCachedDataset(dataset=dataset)
 
         hash_fn = lambda x: hashlib.md5((x).encode("utf-8")).hexdigest()
         if self.hparams.slicer is not None:

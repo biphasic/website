@@ -9,7 +9,7 @@ node_modules/
 go.sum
 .hugo_build.lock
 
-
+samna.log
 content/posts/**/data
 content/posts/**/cache
 content/posts/**/metadata

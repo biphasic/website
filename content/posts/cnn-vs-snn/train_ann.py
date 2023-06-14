@@ -1,5 +1,5 @@
 from dvs_gesture_dataset import DVSGesture
-from models import CNN, SNN
+from models import CNN
 from pytorch_lightning.cli import LightningCLI
 
 

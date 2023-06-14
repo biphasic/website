@@ -16,9 +16,9 @@ post_slicing_transform:
   - class_path: tonic.transforms.ToImage
     init_args:
       sensor_size: [64, 64, 2]
-  - class_path: vision_team.augmentations.frame_based_augmentations.ToFloat
+  - class_path: thunder.vision.augmentations.frame_based_augmentations.ToFloat
 augmentation:
-  - class_path: vision_team.augmentations.frame_based_augmentations.ToTensor
+  - class_path: thunder.vision.augmentations.frame_based_augmentations.ToTensor
   - class_path: torchvision.transforms.RandomPerspective
     init_args:
       distortion_scale: 0.5

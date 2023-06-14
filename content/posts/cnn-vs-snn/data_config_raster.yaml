@@ -1,9 +1,9 @@
-batch_size: 32
+batch_size: 16
 data_dir: data
 pre_slicing_transform:
   - class_path: tonic.transforms.CropTime
     init_args:
-      max: 1_500_000
+      max: 1_600_000
   - class_path: tonic.transforms.Downsample
     init_args:
       time_factor: 1.0
@@ -11,16 +11,16 @@ pre_slicing_transform:
 slicer:
   class_path: tonic.slicers.SliceByTime
   init_args:
-    time_window: 250_000
+    time_window: 400_000
 post_slicing_transform:
   - class_path: tonic.transforms.ToFrame
     init_args:
       sensor_size: [64, 64, 2]
       time_window: 5000
       include_incomplete: true
-  - class_path: vision_team.augmentations.frame_based_augmentations.ToFloat
+  - class_path: thunder.vision.augmentations.frame_based_augmentations.ToFloat
 # augmentation:
-#   - class_path: vision_team.augmentations.frame_based_augmentations.ToTensor
+#   - class_path: thunder.vision.augmentations.frame_based_augmentations.ToTensor
 #   - class_path: torchvision.transforms.RandomPerspective
 #     init_args:
 #       distortion_scale: 0.5
