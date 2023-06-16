@@ -17,16 +17,16 @@ post_slicing_transform:
     init_args:
       sensor_size: [64, 64, 2]
   - class_path: thunder.vision.augmentations.frame_based_augmentations.ToFloat
-augmentation:
-  - class_path: thunder.vision.augmentations.frame_based_augmentations.ToTensor
-  - class_path: torchvision.transforms.RandomPerspective
-    init_args:
-      distortion_scale: 0.5
-      p: 0.5
-  - class_path: torchvision.transforms.RandomErasing
-    init_args:
-      p: 0.5
-      scale: [0.02, 0.2]
+# augmentation:
+#   - class_path: thunder.vision.augmentations.frame_based_augmentations.ToTensor
+#   - class_path: torchvision.transforms.RandomPerspective
+#     init_args:
+#       distortion_scale: 0.5
+#       p: 0.5
+#   - class_path: torchvision.transforms.RandomErasing
+#     init_args:
+#       p: 0.5
+#       scale: [0.02, 0.2]
 cache_path: cache/frames
 metadata_path: metadata/frames
 num_workers: 4

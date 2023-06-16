@@ -9,37 +9,32 @@ from torch.nn import functional as F
 from torchmetrics.classification import MulticlassConfusionMatrix
 
 try:
-    from sinabs.exodus.layers import IAFSqueeze
+    from sinabs.exodus.layers import IAFSqueeze, LIFSqueeze
 except ImportError:
     print("Exodus not available.")
-    from sinabs.layers import IAFSqueeze
+    from sinabs.layers import IAFSqueeze, LIFSqueeze
 
 
 class GestureClassifier(nn.Sequential):
     def __init__(self, num_classes: int):
         bias = True
         dropout_p=0.3
+        base_channel = 2
         super().__init__(
-            nn.Conv2d(2, 8, kernel_size=3, padding=1, bias=bias),
+            nn.Conv2d(2, base_channel, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(8, 16, kernel_size=3, padding=1, bias=bias),
+            nn.Conv2d(base_channel, base_channel*2, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(16, 32, kernel_size=3, padding=1, bias=bias),
+            nn.Conv2d(base_channel*2, base_channel*4, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=bias),
+            nn.Conv2d(base_channel*4, base_channel*8, kernel_size=3, padding=1, bias=bias),
             nn.ReLU(),
             nn.AvgPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(64, 256, kernel_size=4, bias=bias),
-            nn.Dropout2d(p=dropout_p),
-            nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(256, 128, bias=bias),
-            nn.Dropout(p=dropout_p),
-            nn.ReLU(),
-            nn.Linear(128, num_classes, bias=bias),
+            nn.Linear(256, num_classes, bias=bias),
         )
 
 
@@ -129,9 +124,10 @@ class SNN(pl.LightningModule):
             batch_size=batch_size,
             spike_fn=sina.SingleSpike,
             surrogate_grad_fn=sina.SingleExponential(),
-            spike_layer_class=IAFSqueeze,
+            spike_layer_class=LIFSqueeze,
             min_v_mem=None,
             spike_threshold=0.25,
+            kwargs_backend={'tau_mem':10.}
         ).spiking_model
 
     def forward(self, x):

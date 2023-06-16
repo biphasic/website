@@ -9,13 +9,12 @@ optimizer:
 trainer:
   accelerator: gpu
   devices: 1
-  max_epochs: 50
+  max_steps: 50_000
   logger: true
   precision: 32
   callbacks:
     class_path: pytorch_lightning.callbacks.ModelCheckpoint
     init_args:
-      dirpath: null
       filename: step={step}-epoch={epoch}-valid_loss={loss/valid}-valid_acc={accuracy/valid}
       monitor: accuracy/valid
       save_top_k: 1

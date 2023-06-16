@@ -113,10 +113,10 @@ class DVSGesture(pl.LightningDataModule):
             dataset=self.train_data,
             num_workers=self.hparams.num_workers,
             batch_size=self.hparams.batch_size,
-            shuffle=True,
             prefetch_factor=self.hparams.prefetch_factor,
             drop_last=True,
             collate_fn=self.hparams.data_loader_collate_fn,
+            shuffle=True,
         )
 
     def val_dataloader(self):

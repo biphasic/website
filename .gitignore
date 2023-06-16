@@ -15,3 +15,4 @@ content/posts/**/cache
 content/posts/**/metadata
 lightning_logs
 __pycache__
+test.ipynb
