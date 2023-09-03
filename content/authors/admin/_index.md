@@ -63,9 +63,10 @@ social:
 # Link to a PDF of your resume/CV.
 # To use: copy your resume to `static/uploads/resume.pdf`, enable `ai` icons in `params.toml`, 
 # and uncomment the lines below.
-- icon: cv
-  icon_pack: ai
-  link: uploads/CV_public.pdf
+
+# - icon: cv
+#   icon_pack: ai
+#   link: uploads/CV_public.pdf
 
 # Enter email to display Gravatar (if Gravatar enabled in Config)
 email: "mail@lenzgregor.com"
@@ -74,6 +75,6 @@ email: "mail@lenzgregor.com"
 highlight_name: true
 ---
 
-I graduated with a PhD in neuromorphic engineering from Sorbonne University because I think that technology can learn a thing or two from how biological systems process information. I work with event cameras that are inspired by the human retina and spiking neural networks that mimic our brain in an effort to teach machines to compute a bit more like humans do. I'm co-founder of [Neurobus](https://neurobus.space) and [Open Neuromorphic](https://open-neuromorphic.org) to pursue those goals!
+I graduated with a PhD in neuromorphic engineering from Sorbonne University because I think that technology can learn a thing or two from how biological systems process information. I work with event cameras that are inspired by the human retina and spiking neural networks that mimic our brain, in an effort to teach machines to compute a bit more like humans do. I'm co-founder of [Neurobus](https://neurobus.space) and [Open Neuromorphic](https://open-neuromorphic.org) to pursue those goals!
 
 <!-- {{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/CV_public.pdf" "newtab" >}}resumé{{< /staticref >}}. -->
