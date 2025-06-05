@@ -1,0 +1,22 @@
+# pytorch_lightning==1.9.0
+seed_everything: 123
+model:
+  num_classes: 11
+optimizer:
+  class_path: torch.optim.Adam
+  init_args:
+    lr: 0.001
+trainer:
+  accelerator: gpu
+  devices: 1
+  max_steps: 50_000
+  logger: true
+  precision: 32
+  callbacks:
+    class_path: pytorch_lightning.callbacks.ModelCheckpoint
+    init_args:
+      filename: step={step}-epoch={epoch}-valid_loss={loss/valid}-valid_acc={accuracy/valid}
+      monitor: accuracy/valid
+      save_top_k: 1
+      mode: max
+      auto_insert_metric_name: false

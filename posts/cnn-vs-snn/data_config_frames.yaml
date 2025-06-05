@@ -1,0 +1,32 @@
+batch_size: 128
+data_dir: data
+pre_slicing_transform:
+  - class_path: tonic.transforms.CropTime
+    init_args:
+      max: 1_500_000
+  - class_path: tonic.transforms.Downsample
+    init_args:
+      time_factor: 1.0
+      spatial_factor: 0.5
+slicer:
+  class_path: tonic.slicers.SliceByEventCount
+  init_args:
+    event_count: 750
+post_slicing_transform:
+  - class_path: tonic.transforms.ToImage
+    init_args:
+      sensor_size: [64, 64, 2]
+  - class_path: thunder.vision.augmentations.frame_based_augmentations.ToFloat
+# augmentation:
+#   - class_path: thunder.vision.augmentations.frame_based_augmentations.ToTensor
+#   - class_path: torchvision.transforms.RandomPerspective
+#     init_args:
+#       distortion_scale: 0.5
+#       p: 0.5
+#   - class_path: torchvision.transforms.RandomErasing
+#     init_args:
+#       p: 0.5
+#       scale: [0.02, 0.2]
+cache_path: cache/frames
+metadata_path: metadata/frames
+num_workers: 4

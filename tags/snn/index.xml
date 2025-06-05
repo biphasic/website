@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>SNN on Gregor's Blog</title><link>https://biphasic.github.io/tags/snn/</link><description>Recent content in SNN on Gregor's Blog</description><generator>Hugo -- 0.147.7</generator><language>en-gb</language><lastBuildDate>Fri, 06 Jun 2025 00:14:57 +0100</lastBuildDate><atom:link href="https://biphasic.github.io/tags/snn/index.xml" rel="self" type="application/rss+xml"/><item><title>SNN library benchmarks</title><link>https://biphasic.github.io/posts/framework-benchmarking/</link><pubDate>Wed, 02 Aug 2023 00:00:00 +0000</pubDate><guid>https://biphasic.github.io/posts/framework-benchmarking/</guid><description>Comparing the most popular SNN frameworks for gradient-based optimization on top of PyTorch.</description><content:encoded>&lt;p>Check out the article on &lt;a href="https://open-neuromorphic.org/p/snn-library-benchmarks/">https://open-neuromorphic.org/p/snn-library-benchmarks/&lt;/a>&lt;/p>
+</content:encoded></item><item><title>Training spiking neural networks, fast.</title><link>https://biphasic.github.io/posts/train-snns-fast/</link><pubDate>Sun, 27 Nov 2022 00:00:00 +0000</pubDate><guid>https://biphasic.github.io/posts/train-snns-fast/</guid><description>How to use caching and EXODUS to speed up training by a factor of more than 10.</description><content:encoded><![CDATA[<p>When training a spiking neural network (SNN), one might think about how the learning rate or model size affect training time. But when it comes to training <em>faster</em>, optimizing data movement is crucial. 3 out of the first 4 points in <a href="https://www.reddit.com/r/MachineLearning/comments/kvs1ex/d_here_are_17_ways_of_making_pytorch_training/">this list</a> weighted after potential speed-up have to do with how data is shaped and moved around between actual computations. It makes a huge difference, because training faster means getting results faster!</p>
+<p>For this post we train an SNN on the <a href="https://zenkelab.org/resources/spiking-heidelberg-datasets-shd/">Heidelberg Spiking Speech Commands</a> dataset to do audio stream classification. We&rsquo;ll benchmark different data loading strategies using <a href="https://github.com/neuromorphs/tonic">Tonic</a> and show that with the right strategy, we can achieve a more than 10-fold speed-up compared to the naïve approach.</p>
+<p>For all our benchmarks, we already assume multiple worker threads and pinning the host memory. We&rsquo;ll increase throughput by using different forms of caching to disk or GPU. By applying deterministic transformations upfront and saving the new tensor, we can save a lot of time during training.
+This tutorial is run on a machine with Ubuntu 20.04, an Intel Core i7-8700K CPU @ 3.70GHz, a Samsung SSD 850 and an NVIDIA GeForce RTX 3080 GPU.</p>
+<p>All data from neuromorphic datasets in Tonic is provided as NxD numpy arrays. We&rsquo;ll need to transform this into a dense tensor to serve it to the GPU, and we&rsquo;ll also do some downsampling of time steps. Let&rsquo;s first define the transform. We know that samples of audio input data in this dataset are 0.8-1.2s long across 700 frequency channels at microsecond resolution. We&rsquo;ll <a href="https://tonic.readthedocs.io/en/latest/reference/generated/tonic.transforms.Downsample.html#tonic.transforms.Downsample">downsample</a> each sample to 100 channels, <a href="https://tonic.readthedocs.io/en/latest/reference/generated/tonic.transforms.ToFrame.html#tonic.transforms.ToFrame">bin</a> events every 4 ms to one frame and <a href="https://tonic.readthedocs.io/en/latest/reference/generated/tonic.transforms.CropTime.html#tonic.transforms.CropTime">cut</a> samples that are longer than 1s. That leaves us with a maximum of 250 time steps per sample.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> tonic <span style="color:#f92672">import</span> transforms
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dt <span style="color:#f92672">=</span> <span style="color:#ae81ff">4000</span>  <span style="color:#75715e"># all time units in Tonic in us</span>
+</span></span><span style="display:flex;"><span>encoding_dim <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dense_transform <span style="color:#f92672">=</span> transforms<span style="color:#f92672">.</span>Compose(
+</span></span><span style="display:flex;"><span>    [
+</span></span><span style="display:flex;"><span>        transforms<span style="color:#f92672">.</span>Downsample(spatial_factor<span style="color:#f92672">=</span>encoding_dim <span style="color:#f92672">/</span> <span style="color:#ae81ff">700</span>),
+</span></span><span style="display:flex;"><span>        transforms<span style="color:#f92672">.</span>CropTime(max<span style="color:#f92672">=</span><span style="color:#ae81ff">1e6</span>),
+</span></span><span style="display:flex;"><span>        transforms<span style="color:#f92672">.</span>ToFrame(
+</span></span><span style="display:flex;"><span>            sensor_size<span style="color:#f92672">=</span>(encoding_dim, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>), time_window<span style="color:#f92672">=</span>dt, include_incomplete<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>        ),
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>Next we load the training dataset and assign the transform.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> tonic <span style="color:#f92672">import</span> datasets
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dense_dataset <span style="color:#f92672">=</span> datasets<span style="color:#f92672">.</span>SSC(<span style="color:#e6db74">&#34;./data&#34;</span>, split<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;train&#34;</span>, transform<span style="color:#f92672">=</span>dense_transform)
+</span></span></code></pre></div><p>Let&rsquo;s plot one such dense tensor sample:</p>
+
+<div id="chart-result0" style="width:100%; height:500px;"></div>
+
+<script>
+    fetch('/data/charts/result0.json')
+        .then(response => response.json())
+        .then(data => {
+            Plotly.newPlot('chart-result0', data.data, data.layout, {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            });
+        });
+</script>
+<p>Next we define a spiking model. We use a simple integrate-and-fire (IAF) feed-forward architecture. For each dataloading method, we&rsquo;re going to test two different models. One is a <a href="https://sinabs.readthedocs.io">Sinabs</a> model which is pretty much pure PyTorch plus for loops and the second one is an <a href="https://github.com/synsense/sinabs-exodus">EXODUS</a> model, which is also based on PyTorch but vectorizes gradient computation for the time dimension using custom CUDA code. Both models compute the same activations and gradients, but the latter provides a significant speedup.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch.nn <span style="color:#66d9ef">as</span> nn
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sinabs.layers <span style="color:#66d9ef">as</span> sl
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sinabs.exodus.layers <span style="color:#66d9ef">as</span> el
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SNN</span>(nn<span style="color:#f92672">.</span>Sequential):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, backend, hidden_dim: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">128</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">assert</span> backend <span style="color:#f92672">==</span> sl <span style="color:#f92672">or</span> backend <span style="color:#f92672">==</span> el
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>(
+</span></span><span style="display:flex;"><span>            nn<span style="color:#f92672">.</span>Linear(encoding_dim, hidden_dim),
+</span></span><span style="display:flex;"><span>            backend<span style="color:#f92672">.</span>IAF(),
+</span></span><span style="display:flex;"><span>            nn<span style="color:#f92672">.</span>Linear(hidden_dim, hidden_dim),
+</span></span><span style="display:flex;"><span>            backend<span style="color:#f92672">.</span>IAF(),
+</span></span><span style="display:flex;"><span>            nn<span style="color:#f92672">.</span>Linear(hidden_dim, hidden_dim),
+</span></span><span style="display:flex;"><span>            backend<span style="color:#f92672">.</span>IAF(),
+</span></span><span style="display:flex;"><span>            nn<span style="color:#f92672">.</span>Linear(hidden_dim, <span style="color:#ae81ff">35</span>),
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sinabs_model <span style="color:#f92672">=</span> SNN(backend<span style="color:#f92672">=</span>sl)<span style="color:#f92672">.</span>cuda()
+</span></span><span style="display:flex;"><span>exodus_model <span style="color:#f92672">=</span> SNN(backend<span style="color:#f92672">=</span>el)<span style="color:#f92672">.</span>cuda()
+</span></span></code></pre></div><h2 id="1-naïve-dataloading">1. Naïve dataloading</h2>
+<p>For the first benchmark we test the most common setup without any caching. We load every sample from an hdf5 file on disk which provides us with a numpy array in memory. For each sample, we apply our <code>dense_transform</code> defined earlier to create a dense tensor which we can then batch together with other samples and feed it to the network.</p>
+<!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> sinabs
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> timeit
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> tonic
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> pandas <span style="color:#66d9ef">as</span> pd
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> torch.utils.data <span style="color:#f92672">import</span> DataLoader
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dataloader_kwargs <span style="color:#f92672">=</span> dict(
+</span></span><span style="display:flex;"><span>    batch_size<span style="color:#f92672">=</span><span style="color:#ae81ff">128</span>,
+</span></span><span style="display:flex;"><span>    shuffle<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
+</span></span><span style="display:flex;"><span>    drop_last<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
+</span></span><span style="display:flex;"><span>    pin_memory<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
+</span></span><span style="display:flex;"><span>    collate_fn<span style="color:#f92672">=</span>tonic<span style="color:#f92672">.</span>collation<span style="color:#f92672">.</span>PadTensors(batch_first<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
+</span></span><span style="display:flex;"><span>    num_workers<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>,
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>naive_dataloader <span style="color:#f92672">=</span> DataLoader(dense_dataset, <span style="color:#f92672">**</span>dataloader_kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">training_loop</span>(dataloader, model):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> data, targets <span style="color:#f92672">in</span> iter(dataloader):
+</span></span><span style="display:flex;"><span>        data, targets <span style="color:#f92672">=</span> data<span style="color:#f92672">.</span>squeeze()<span style="color:#f92672">.</span>cuda(), targets<span style="color:#f92672">.</span>cuda()
+</span></span><span style="display:flex;"><span>        sinabs<span style="color:#f92672">.</span>reset_states(model)
+</span></span><span style="display:flex;"><span>        output <span style="color:#f92672">=</span> model(data)
+</span></span><span style="display:flex;"><span>        loss <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>functional<span style="color:#f92672">.</span>cross_entropy(output<span style="color:#f92672">.</span>sum(<span style="color:#ae81ff">1</span>), targets)
+</span></span><span style="display:flex;"><span>        loss<span style="color:#f92672">.</span>backward()
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> timeit <span style="color:#f92672">import</span> timeit
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>time1 <span style="color:#f92672">=</span> timeit(<span style="color:#66d9ef">lambda</span>: training_loop(naive_dataloader, sinabs_model), number<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>time2 <span style="color:#f92672">=</span> timeit(<span style="color:#66d9ef">lambda</span>: training_loop(naive_dataloader, exodus_model), number<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div>
+<div id="chart-result1" style="width:100%; height:500px;"></div>
+
+<script>
+    fetch('/data/charts/result1.json')
+        .then(response => response.json())
+        .then(data => {
+            Plotly.newPlot('chart-result1', data.data, data.layout, {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            });
+        });
+</script>
+<p>The Sinabs model takes more than two minutes per epoch using the simple strategy, which is far from exciting. By contrast, we can already see the huge speedup that EXODUS provides, reducing epoch time by a third! These results are our baseline with the basic dataloading.</p>
+<h2 id="disk-caching">Disk caching</h2>
+<p>Let&rsquo;s try to be a bit smarter now. <code>ToFrame</code> is a deterministic transform, so for the same sample we&rsquo;ll always receive the same transformed data. Given that we might train for 100 epochs, which looks at each sample 100 times, that&rsquo;s a lot of wasted compute! Now we&rsquo;re going to cache, which means save, those transformed samples to disk during the first epoch, so that we don&rsquo;t need to recompute them later on! To do this we simply wrap our previous dataset in a <a href="https://tonic.readthedocs.io/en/latest/reference/data_classes.html#tonic.DiskCachedDataset">DiskCachedDataset</a> and provide the cache path. When a new sample is about to be loaded, that class will first check if the transformed sample is already in the cache on disk and if it isn&rsquo;t, it will retrieve the original sample, apply the transform, cache it to disk and then serve it. This caching process slows down training in the first epoch, but it pays off afterwards!</p>
+<!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>disk_cached_dataset <span style="color:#f92672">=</span> tonic<span style="color:#f92672">.</span>DiskCachedDataset(
+</span></span><span style="display:flex;"><span>    dataset<span style="color:#f92672">=</span>dense_dataset,
+</span></span><span style="display:flex;"><span>    cache_path<span style="color:#f92672">=</span><span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;cache/</span><span style="color:#e6db74">{</span>dense_dataset<span style="color:#f92672">.</span>__class__<span style="color:#f92672">.</span>__name__<span style="color:#e6db74">}</span><span style="color:#e6db74">/train/</span><span style="color:#e6db74">{</span>encoding_dim<span style="color:#e6db74">}</span><span style="color:#e6db74">/</span><span style="color:#e6db74">{</span>dt<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>disk_cached_dataloader <span style="color:#f92672">=</span> DataLoader(disk_cached_dataset, <span style="color:#f92672">**</span>dataloader_kwargs)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># cache on disk already available</span>
+</span></span><span style="display:flex;"><span>time3 <span style="color:#f92672">=</span> timeit(<span style="color:#66d9ef">lambda</span>: training_loop(disk_cached_dataloader, sinabs_model), number<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>time4 <span style="color:#f92672">=</span> timeit(<span style="color:#66d9ef">lambda</span>: training_loop(disk_cached_dataloader, exodus_model), number<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div>
+<div id="chart-result2" style="width:100%; height:500px;"></div>
+
+<script>
+    fetch('/data/charts/result2.json')
+        .then(response => response.json())
+        .then(data => {
+            Plotly.newPlot('chart-result2', data.data, data.layout, {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            });
+        });
+</script>
+<p>We brought down epoch training time to 14s for the EXODUS model by not having to recompute the <code>ToFrame</code> transform! The speedup comes at the expense of disk space. How much disk space does it cost you may ask? The size of the original dataset file is 2.65 GB compared to the generated cache folder of 1.04 GB, which is not too bad!</p>
+<p>The original dataset contained numpy events, whereas the cache folder contains dense tensors. We can compress the dense tensors that much because by default Tonic uses lightweight compression during caching. Disk-caching is generally applicable when training SNNs because it saves you the time to transform your events to dense tensors. Of course you could apply any other deterministic transform before caching it, and also easily apply augmentations to the cached samples as described in <a href="https://tonic.readthedocs.io/en/latest/tutorials/fast_dataloading.html">this tutorial</a>!</p>
+<p>Now we notice one more thing. Overall GPU utilisation rate at this point is at ~80%, which means that the GPU is still idling the rest of the time, waiting for new data to arrive. So we can try to go even faster!</p>
+<h2 id="gpu-caching">GPU caching</h2>
+<p>Instead of loading dense tensors from disk, we can try to cram all our dataset onto the GPU! The issue is that with dense tensors this wouldn&rsquo;t work as they would occupy too much memory. But events are already an efficient format right? So we&rsquo;ll store the events on the GPU as sparse tensors and then simply inflate them as needed by calling to_dense() for each sample. This method is obviously bound by GPU memory so works with rather small datasets such as the one we&rsquo;re testing. However, once you&rsquo;re setup, you can train with <em>blazing</em> speed. For GPU caching we are going to:</p>
+<ol>
+<li>Create a new sparse dataset on the fly by loading them from the disk cache and calling to_sparse() on the transformed tensors.</li>
+<li>Create a new dataloader that now uses a single thread.</li>
+<li>Inflate sparse tensors to dense versions by calling to_dense() in the training loop.</li>
+</ol>
+<!-- raw HTML omitted -->
+<p>The sparse tensor dataset takes about 5.7 GB of GPU memory. Not very efficient, but also not terrible. What about training speeds?</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">gpu_training_loop</span>(model):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> data, targets <span style="color:#f92672">in</span> iter(sparse_tensor_dataloader):
+</span></span><span style="display:flex;"><span>        data <span style="color:#f92672">=</span> data<span style="color:#f92672">.</span>to_dense()
+</span></span><span style="display:flex;"><span>        sinabs<span style="color:#f92672">.</span>reset_states(model)
+</span></span><span style="display:flex;"><span>        output <span style="color:#f92672">=</span> model(data)
+</span></span><span style="display:flex;"><span>        loss <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>functional<span style="color:#f92672">.</span>cross_entropy(output<span style="color:#f92672">.</span>sum(<span style="color:#ae81ff">1</span>), targets)
+</span></span><span style="display:flex;"><span>        loss<span style="color:#f92672">.</span>backward()
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>time5 <span style="color:#f92672">=</span> timeit(<span style="color:#66d9ef">lambda</span>: gpu_training_loop(sinabs_model), number<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>time6 <span style="color:#f92672">=</span> timeit(<span style="color:#66d9ef">lambda</span>: gpu_training_loop(exodus_model), number<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div>
+<div id="chart-result3" style="width:100%; height:500px;"></div>
+
+<script>
+    fetch('/data/charts/result3.json')
+        .then(response => response.json())
+        .then(data => {
+            Plotly.newPlot('chart-result3', data.data, data.layout, {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            });
+        });
+</script>
+<p>We&rsquo;re down to less than 9s per epoch for the EXODUS model, which is another 40% less than disk-caching and an almost 15-fold improvement over the original Sinabs model using the naïve dataloading approach! Now we&rsquo;re really exploiting the GPU as much as possible with a utilisation percentage of ~99%. All this without any qualitative impact on gradient computation.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The principle of caching can be applied to any data that you apply deterministic transformations to, but it pays off particularly well for event-based data. By using cached samples and not having to recompute the same transformations every time, we save ourselves a lot of time during training. If the data already sits on the GPU when it is requested, the speedup is really high. After all, there is a reason why neural network accelerators heavily optimise memory caching to minimise time and energy spent on data movement. So when should you use either disk- or GPU-caching?</p>
+<ul>
+<li><strong>Disk-caching</strong>: Broadly applicable, useful if you apply deterministic transformations to each sample and you train for many epochs. Not ideal if you&rsquo;re low on disk space.</li>
+<li><strong>GPU-caching</strong>: Only really suitable for small datasets and a bit more intricate to setup, but well worth the effort if you want to explore many different architectures / training parameters due to the speed of iteration.</li>
+</ul>
+<p>As a last note, you might be wondering why we don&rsquo;t cache to the host memory instead of reading from a disk cache. This is totally possible, but the bottleneck at that point really is moving the data onto the GPU, which takes time. Whether the data sits in host memory or is loaded from disk using multiple worker threads doesn&rsquo;t make much of a difference, because the GPU cannot handle the data movement. Since on disk we have much more space available than in RAM, we normally choose to do that.</p>
+<p>This tutorial is available <a href="https://github.com/biphasic/snn-training-templates/blob/main/posts/training-snns-faster/index.ipynb">here</a> for you to run, where you&rsquo;ll also find some other training templates.</p>
+<p>Acknowledgements: Thanks a lot to Omar Oubari, Mina Khoei and Fabrizio Ottati for the feedback.</p>
+]]></content:encoded></item></channel></rss>
