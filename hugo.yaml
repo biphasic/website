@@ -1,0 +1,55 @@
+baseURL: https://biphasic.github.io/
+languageCode: en-gb
+title: Gregor's Blog
+theme: PaperMod
+
+# Enable features
+enableGitInfo: true
+enableEmoji: true
+
+# Menu configuration
+menu:
+  main:
+    - identifier: home
+      name: Home
+      url: /
+      weight: -100
+    - identifier: posts
+      name: Posts
+      url: /posts/
+      weight: -90
+
+
+# Theme configuration
+params:
+  defaultTheme: auto
+  ShowShareButtons: true
+  ShowReadingTime: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowRssButtonInSectionTermList: true
+  ShowWordCount: true
+  ShowFullTextinRSS: true
+  profileMode:
+    enabled: true
+    align: right
+    imageUrl: "/images/profile.jpg"
+    imageWidthPx: 150
+    imageHeightPx: 150
+    imageTitle: "Gregor Lenz"
+    imageAlt: "Gregor Lenz"
+    subtitle: "I'm working on embodied AI at Paddington Robotics! Previously, I did a PhD in neuromorphic engineering at Sorbonne University, co-founded [Open Neuromorphic](https://open-neuromorphic.org) and [Neurobus](https://neurobus.ai)."
+  
+  # Social links
+  socialIcons:
+    - name: email
+      url: "mailto:mail@lenzgregor.com"
+    - name: twitter
+      url: "https://twitter.com/gregorlenz"
+    - name: google-scholar
+      url: "https://scholar.google.com/citations?user=aqahOiAAAAAJ"
+    - name: github
+      url: "https://github.com/biphasic"
+    - name: linkedin
+      url: "https://www.linkedin.com/in/gregorlenz/"

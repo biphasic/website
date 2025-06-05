@@ -1,0 +1,15 @@
+{{ $data := .Get "data" }}
+<div id="chart-{{ $data }}" style="width:100%; height:500px;"></div>
+
+<script>
+    fetch('/data/charts/{{ $data }}.json')
+        .then(response => response.json())
+        .then(data => {
+            Plotly.newPlot('chart-{{ $data }}', data.data, data.layout, {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            });
+        });
+</script>
