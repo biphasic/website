@@ -39,7 +39,7 @@ params:
     imageHeightPx: 150
     imageTitle: "Gregor Lenz"
     imageAlt: "Gregor Lenz"
-    subtitle: "I'm working on embodied AI at Paddington Robotics! Previously, I did a PhD in neuromorphic engineering at Sorbonne University, co-founded [Open Neuromorphic](https://open-neuromorphic.org) and [Neurobus](https://neurobus.ai)."
+    subtitle: "I'm working on embodied AI at [Paddington Robotics](https://paddington-robotics.com)! With a PhD in neuromorphic engineering from Sorbonne University, I co-founded [Open Neuromorphic](https://open-neuromorphic.org) and [Neurobus](https://neurobus.ai)."
   
   # Social links
   socialIcons:
