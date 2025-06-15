@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Home on Gregor's Blog</title><link>https://biphasic.github.io/website/</link><description>Recent content in Home on Gregor's Blog</description><generator>Hugo -- 0.147.7</generator><language>en-gb</language><lastBuildDate>Fri, 06 Jun 2025 00:21:01 +0100</lastBuildDate><atom:link href="https://biphasic.github.io/website/index.xml" rel="self" type="application/rss+xml"/><item><title>SNN library benchmarks</title><link>https://biphasic.github.io/website/posts/framework-benchmarking/</link><pubDate>Wed, 02 Aug 2023 00:00:00 +0000</pubDate><guid>https://biphasic.github.io/website/posts/framework-benchmarking/</guid><description>Comparing the most popular SNN frameworks for gradient-based optimization on top of PyTorch.</description><content:encoded>&lt;p>Check out the article on &lt;a href="https://open-neuromorphic.org/p/snn-library-benchmarks/">https://open-neuromorphic.org/p/snn-library-benchmarks/&lt;/a>&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Home on Gregor's Blog</title><link>https://biphasic.github.io/website/</link><description>Recent content in Home on Gregor's Blog</description><generator>Hugo -- 0.147.8</generator><language>en-gb</language><lastBuildDate>Sun, 15 Jun 2025 21:44:17 +0100</lastBuildDate><atom:link href="https://biphasic.github.io/website/index.xml" rel="self" type="application/rss+xml"/><item><title>SNN library benchmarks</title><link>https://biphasic.github.io/website/posts/framework-benchmarking/</link><pubDate>Wed, 02 Aug 2023 00:00:00 +0000</pubDate><guid>https://biphasic.github.io/website/posts/framework-benchmarking/</guid><description>Comparing the most popular SNN frameworks for gradient-based optimization on top of PyTorch.</description><content:encoded>&lt;p>Check out the article on &lt;a href="https://open-neuromorphic.org/p/snn-library-benchmarks/">https://open-neuromorphic.org/p/snn-library-benchmarks/&lt;/a>&lt;/p>
 </content:encoded></item><item><title>Efficient compression for event-based data</title><link>https://biphasic.github.io/website/posts/file-format-benchmarking/</link><pubDate>Tue, 28 Feb 2023 00:00:00 +0000</pubDate><guid>https://biphasic.github.io/website/posts/file-format-benchmarking/</guid><description>Choosing a good trade-off between disk footprint and file loading times.</description><content:encoded>&lt;p>Check out the article on &lt;a href="https://open-neuromorphic.org/p/efficient-compression-for-event-based-data/">https://open-neuromorphic.org/p/efficient-compression-for-event-based-data/&lt;/a>&lt;/p>
 </content:encoded></item><item><title>Tonic</title><link>https://biphasic.github.io/website/projects/tonic/</link><pubDate>Fri, 03 Feb 2023 22:02:13 +0100</pubDate><guid>https://biphasic.github.io/website/projects/tonic/</guid><description>Spike-based data sets and transformation built on PyTorch.</description></item><item><title>Training spiking neural networks, fast.</title><link>https://biphasic.github.io/website/posts/train-snns-fast/</link><pubDate>Sun, 27 Nov 2022 00:00:00 +0000</pubDate><guid>https://biphasic.github.io/website/posts/train-snns-fast/</guid><description>How to use caching and EXODUS to speed up training by a factor of more than 10.</description><content:encoded><![CDATA[<p>When training a spiking neural network (SNN), one might think about how the learning rate or model size affect training time. But when it comes to training <em>faster</em>, optimizing data movement is crucial. 3 out of the first 4 points in <a href="https://www.reddit.com/r/MachineLearning/comments/kvs1ex/d_here_are_17_ways_of_making_pytorch_training/">this list</a> weighted after potential speed-up have to do with how data is shaped and moved around between actual computations. It makes a huge difference, because training faster means getting results faster!</p>
 <p>For this post we train an SNN on the <a href="https://zenkelab.org/resources/spiking-heidelberg-datasets-shd/">Heidelberg Spiking Speech Commands</a> dataset to do audio stream classification. We&rsquo;ll benchmark different data loading strategies using <a href="https://github.com/neuromorphs/tonic">Tonic</a> and show that with the right strategy, we can achieve a more than 10-fold speed-up compared to the naïve approach.</p>
@@ -28,7 +28,7 @@ This tutorial is run on a machine with Ubuntu 20.04, an Intel Core i7-8700K CPU 
 <div id="chart-result0" style="width:100%; height:500px;"></div>
 
 <script>
-    fetch('/data/charts/result0.json')
+    fetch('https:\/\/biphasic.github.io\/website\/data/charts/result0.json')
         .then(response => response.json())
         .then(data => {
             Plotly.newPlot('chart-result0', data.data, data.layout, {
@@ -98,7 +98,7 @@ This tutorial is run on a machine with Ubuntu 20.04, an Intel Core i7-8700K CPU 
 <div id="chart-result1" style="width:100%; height:500px;"></div>
 
 <script>
-    fetch('/data/charts/result1.json')
+    fetch('https:\/\/biphasic.github.io\/website\/data/charts/result1.json')
         .then(response => response.json())
         .then(data => {
             Plotly.newPlot('chart-result1', data.data, data.layout, {
@@ -126,7 +126,7 @@ This tutorial is run on a machine with Ubuntu 20.04, an Intel Core i7-8700K CPU 
 <div id="chart-result2" style="width:100%; height:500px;"></div>
 
 <script>
-    fetch('/data/charts/result2.json')
+    fetch('https:\/\/biphasic.github.io\/website\/data/charts/result2.json')
         .then(response => response.json())
         .then(data => {
             Plotly.newPlot('chart-result2', data.data, data.layout, {
@@ -162,7 +162,7 @@ This tutorial is run on a machine with Ubuntu 20.04, an Intel Core i7-8700K CPU 
 <div id="chart-result3" style="width:100%; height:500px;"></div>
 
 <script>
-    fetch('/data/charts/result3.json')
+    fetch('https:\/\/biphasic.github.io\/website\/data/charts/result3.json')
         .then(response => response.json())
         .then(data => {
             Plotly.newPlot('chart-result3', data.data, data.layout, {
