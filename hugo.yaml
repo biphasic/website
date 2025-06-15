@@ -34,7 +34,7 @@ params:
   profileMode:
     enabled: true
     align: right
-    imageUrl: "/images/profile.jpg"
+    imageUrl: "images/profile.jpg"
     imageWidthPx: 150
     imageHeightPx: 150
     imageTitle: "Gregor Lenz"
