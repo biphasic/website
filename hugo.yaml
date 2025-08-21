@@ -3,6 +3,12 @@ languageCode: en-gb
 title: Gregor's Blog
 theme: PaperMod
 
+# Markup configuration
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
 # Enable features
 enableGitInfo: true
 enableEmoji: true
