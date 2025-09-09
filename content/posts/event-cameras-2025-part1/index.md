@@ -5,13 +5,13 @@ commentable: true
 
 date: 2025-08-13
 lastmod: 2025-08-13
-draft: true
+draft: false
 
 tags: ["Event cameras"]
 summary: "Built for speed, looking for the mainstream: Promising commercial markets for event cameras."
 ---
 
-After spending eight years working with event-based cameras, I recently stepped down as CTO of Neurobus and transitioned to a role in the field of robotics in London. Despite that shift, I still believe in the potential of event cameras, especially for edge computing. Their asynchronous data capture model is promising, but the technology isn’t quite there yet. In this article, I want to outline the main markets that I think could drive the adoption of event cameras and also talk about what’s currently holding the technology back.
+Earlier this year, stepped down as CTO of [Neurobus](https://neurobus.ai) and transitioned to a role in the field of robotics in London. Despite that shift, I still believe in the potential of event cameras, especially for edge computing. Their asynchronous data capture model is promising, but the technology isn’t quite there yet. In two parts, I want to outline the main markets that I think could drive the adoption of event cameras and also talk about what’s currently holding the technology back.
 
 ## Industry landscape
 Fifteen years ago, the market for event cameras barely existed. Today, it’s worth around 220 million dollars. That rate of growth is actually in line with how most sensor technologies develop. LiDAR, for example, was originally created in the 1970s for military and aerospace applications. It took decades before it found its way into mainstream products, with broader adoption only starting in the 2010s when autonomous vehicles began to emerge. Time-of-flight sensors were originally explored in the 1980s, but only became widespread after Apple introduced Face ID in 2015.
@@ -59,7 +59,7 @@ That said, there are niche applications where event cameras could shine. High-sp
 Event cameras could offer a much more compact and energy-efficient alternative. They don’t need high-speed links or huge data buffers, and they can be powered through a USB port and still achieve sub ms latency. I think that event cameras could become a competitor for the use of high speed cameras in scientific settings, with a focus on small form factor and mobile applications. One challenge and active research area here is reconstructing high-quality video frames from events. The good news is that we’re seeing steady progress, and there’s even a public leaderboard tracking the latest benchmarks [here](https://ercanburak.github.io/evreal.html). However, these methods currently consume an entire 100W GPU so they’re done offline. One of the biggest hurdles is collecting good ground truth data for what reconstructed frames should look like, which is why most researchers still rely on simulation. But if such reconstruction models get very good, I could imagine a business model where a user uploads the raw events, chooses the desired fps, and gets back videos with up to 10k fps. Pricing is per frame reconstructed, be it 10 Hz for 2 hours or 1 kHz for 1 second.
   
 ![high-speed-rendering](images/science.jpg)
-*Description*
+*A comparison between a high-speed camera and an event camera. The high-speed camera workflow shows three steps: recording, postprocessing with video compression, and the result as high frame rate RGB video. This path requires handling a large amount of data. The event camera workflow shows recording followed by frame reconstruction, leading to high frame rate greyscale video, while generating much less data overall. The diagram highlights how event cameras provide efficient high-speed imaging compared to traditional high-speed cameras.*
 
 ## Automotive
 Event cameras in cars have had several testers, but none have stuck to it for now. While the technical case is strong, the path to adoption is complex, shaped by legacy systems, cost constraints, and the structure of the automotive supply chain.
@@ -82,10 +82,13 @@ Automotive adoption moves slowly. Getting into a car platform can take five to t
 ## Defence
 Many of the technologies we now take for granted started with defense: GPS, the internet, radar, night vision, even early AI. Defense has always been an early adopter of bleeding-edge tech, not because it’s trendy, but because the stakes demand it. Systems need to function in low visibility, track fast-moving targets, and operate independently in environments where there’s no GPS, no 5G, and no time to wait for remote instructions. In such cases, autonomy is a requirement and modern military operations are increasingly autonomous. Drone swarms, for example, don’t rely on one pilot per unit anymore. A central command issues a mission, and the swarm executes it even deep behind enemy lines. That shift toward onboard intelligence makes the case for sensors that are low-latency, low-power, and can extract meaningful information with minimal compute. That’s where event cameras can play a role. Their high temporal resolution and efficiency make them well suited to motion detection and fast reaction loops in the field.
 
+![drone-detection](images/drone-detection.jpeg)
+*Drone detection based on time surfaces at the European Defence Tech Hackathon*
+
 We put this into practice at the European Defence Tech Hackathon in Paris last December. The Ukrainian military had outlined their biggest challenges, and drones topped the list by a mile. Over 1.2 million were deployed in Ukraine last year alone [according to its Ministry of Defence](https://mod.gov.ua/news/minoboroni-peredalo-ponad-1-2-mln-droniv-dlya-sil-oboroni-shhe-100-000-nadijdut-do-kinczya-grudnya), most of them manually piloted First Person View (FPV) drones. They include variants that carry a spool of lightweight optical fibre, often 10 km long, that allows the pilot to control the drone by wire, without radio signals, see the photo below. And Ukraine's target for 2025 is a staggering [4.5 million](https://www.forbes.com/sites/davidaxe/2025/03/12/45-million-drones-is-a-lot-of-drones-its-ukraines-new-production-target-for-2025/). Main supply routes are now completely [covered in anto drone nets](https://www.youtube.com/watch?v=ltYPXOSddOg), and fields close to the frontline are [covered with optical fibre](https://x.com/Archer83Able/status/1927381503303987606). Both sides are racing to automate anti-drone systems. At that hackathon in December, we developed an event-based drone detection system and won first place. That experience made it clear that the demand is real! An enemy drone shutdown can mean a soldier's life saved. There’s also a pragmatic reason why the defense sector is attractive: volume. Every drone, loitering munition, or autonomous ground vehicle is a potential autonomous system. Event cameras aren’t the only option, but they’re a good candidate when fast response times are crucial and power budgets are tight.
 
 ![fpv-optical-fibre-drone](images/fpv-drone.jpg)
-*An FPV drone with an optical fibre spool attached. Photo by Maxym Marusenko/NurPhoto via Getty Images*
+*An FPV drone with an optical fibre spool attached. Photo by Maxym Marusenko/NurPhoto*
 
 The European Union [has committed €800 billion](https://www.brusselstimes.com/eu-affairs/1562906/eu-defence-escape-clause-on-right-track-but-uncertainty-about-loans-for-joint-procurement) to defense and technological sovereignty. Whether that funding reaches startups effectively is another question, but the political intent is clear. Europe wants to control more of its military tech stack, and that opens the door to new players with homegrown solutions. Already today we see many new defence startups on the scene, a lot of them focusing on AI and autonomy.
 Defence comes with a lot of red tape, whether it’s access to real data, the reliance on slow government funding, the fact that it can resemble a walled garden, or simply the limited options in terms of exits. But out of all the sectors I’ve looked into, defense stands out as the most likely place for event cameras to find product-market fit first. There’s real demand, shorter adoption cycles, and a willingness to experiment. There are new companies forming in [Australia](https://optera.au/) and the [US](https://tempo-sense.com/) that are experimenting with making event sensors for the defence sector, and [Prophesee](https://www.prophesee.ai/event-based-vision-defense-aerospace/) in Europe now lists Defence as a potential field of application for their sensors as well. Leonardo, the Italian defence company, even released a [paper](https://arxiv.org/abs/2409.16099) experimenting with event cameras for drone detection.
@@ -97,6 +100,14 @@ What I didn’t fully appreciate back then was the importance of power consumpti
 
 Prophesee recently announced a partnership with [Tobii](https://www.tobii.com/), who are a major supplier of eye tracking solutions. [Zinn Labs](https://www.zinnlabs.com/), one of the early adopters of event-based gaze tracking, were acquired in February 2025. These developments suggest that there is traction for the technology, especially in applications where power efficiency and responsiveness are key. According to Tobi Delbruck from ETH Zurich, if spectacles catch on like smartphones, then this will be a true mass production of event vision sensors. That said, the broader question remains whether the smart glasses market will scale any time soon. Event cameras may be a good fit from a technical perspective, but the commercial success of wearables will depend on many other factors beyond just sensor performance.
 
-## Conclusion
+![zinn-labs](images/zinn-labs.jpg)
+*Prototype by Zinn Labs that includes a GenX320 sensor.*
 
-* Use cases around drones in Defense and low-power eye tracking for Wearables are the most likely entry markets.
+## A Note on Robotics
+Even though fast sensors should be great for fine-grained, low-latency loop closure in control, this field is dealing with very different challenges at the moment, at least for building Autonomous Mobile Robots or Humanoids. Controlling an arm or a leg using Visual Language Action (VLA) models is incredibly difficult, and neither input frame rate, nor dynamic range are the limitations. Even once more performant models become available, you'll have to deal with the same challenges as in the Automotive sector, which is that adding a new modality needs lots of new (simulated) data. 
+
+## Conclusion
+Event cameras have come a long way, but they are still searching for the right entry points into the mainstream. The most promising early markets seem to be in defense, where speed and efficiency are critical for drones and autonomous systems, and in wearables, where power constraints make their efficiency truly valuable. Other sectors like space, automotive, and manufacturing show interesting opportunities, but adoption is likely to remain slower and more niche for now.
+The trajectory of this technology suggests that with persistence and the right applications, event cameras will carve out their role in the broader sensor landscape.
+
+In Part 2, I will discuss the technological hurdles that event cameras are facing today. 
