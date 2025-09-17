@@ -66,10 +66,49 @@
 <p>In short range applications such as eye tracking for wearables, a <a href="https://www.prophesee.ai/event-based-sensor-genx320/">GenX320</a> at lower resolution but high dynamic range and ultra low power modes is going to be more interesting.
 For scientific applications, NovoViz recently <a href="https://www.tokyoupdates.metro.tokyo.lg.jp/en/post-1551/">announced</a> a new SPAD (single photon avalanche diode) camera using event-based outputs!</p>
 <p>One thing is clear: today’s binary microsecond spikes are rarely the right format. Much like Intel’s <a href="https://open-neuromorphic.org/neuromorphic-computing/hardware/loihi-2-intel/">Loihi 2</a> shifted from binary spikes to richer spike payloads because they realised that the communication overhead was too high otherwise, future event cameras could emit multi-bit “micro-frames” or tokenizable spike packets. These would represent short-term local activity and could be directly ingested by ML models, reducing the need for preprocessing altogether. Ideally there’s a trade-off between information density and temporal resolution that can be chosen depending on the application.</p>
-<p>A key trend are hybrid vision sensors that combine rgb and event frames. Early designs such as the DAVIS output RGB frames and raw events, which then needed to be converted to other representations. At ISSCC 2023, three papers (<a href="https://ieeexplore.ieee.org/document/10067520">one</a>, <a href="https://ieeexplore.ieee.org/document/10067566">two</a>, and <a href="https://ieeexplore.ieee.org/document/10067476">three</a>) were released that showed <em>event frames</em> at variable rate being output next to fixed RGB outputs. While many researchers (including me) originally set out to discard event frames, I think it is time to swallow a bitter pill and accept that computer vision will depend on it for the foreseeable future.</p>
-<p><img alt="hybrid-vision-sensors" loading="lazy" src="/posts/event-cameras-2025-part2/images/hvs.png">
-<em><a href="https://ieeexplore.ieee.org/document/10067520">Kodama et al.</a> presented a sensor that outputs variable event frame rates next to RGB.</em></p>
-<p>In either case, the event camera sensor has not reached its final form yet. Binary events don&rsquo;t contain enough information on their own, so they must be aggregated in one form or another. Event sensors might move from binary outputs toward richer encodings at the pixel level, attach a dedicated processor to output richer representations, or they simply output what the world already knows well: another form of frames. My bet is currently on the latter, because the simplest solutions tend to win.</p>
+<p>A key trend are hybrid vision sensors that combine rgb and event frames. At ISSCC 2023, three papers showed new generations of hybrid vision sensors, which output both RGB frames at fixed rates and events in between.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Sensor</th>
+          <th>Event output type</th>
+          <th>Timing &amp; synchronization</th>
+          <th>Polarity info</th>
+          <th>Typical max rate</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><a href="https://ieeexplore.ieee.org/document/10067566">Sony 2.97 μm</a></td>
+          <td>Binary event frames (two separate ON/OFF maps)</td>
+          <td>Synchronous, ~580 µs “event frame” period</td>
+          <td>2 bits per pixel (positive &amp; negative)</td>
+          <td>~1.4 GEvents/s</td>
+      </tr>
+      <tr>
+          <td><a href="https://ieeexplore.ieee.org/document/10067476">OmniVision 3-wafer</a></td>
+          <td>Per-event address-event packets (x, y, t, polarity)</td>
+          <td>Asynchronous, microsecond-level timestamps</td>
+          <td>Single-bit polarity per event</td>
+          <td>Up to 4.6 GEvents/s</td>
+      </tr>
+      <tr>
+          <td><a href="https://ieeexplore.ieee.org/document/10067520">Sony 1.22 μm, 35.6 MP</a></td>
+          <td>Binary event frames with row-skipping &amp; compression</td>
+          <td>Variable frame sync, up to 10 kfps per RGB frame</td>
+          <td>2 bits per pixel (positive &amp; negative)</td>
+          <td>Up to 4.56 GEvents/s</td>
+      </tr>
+  </tbody>
+</table>
+<p>The Sony 2.97 μm chip uses aggressive circuit sharing so that four pixels share one comparator and analog front-end. Events are not streamed individually but are batched into binary event frames every ~580 µs, with separate maps for ON and OFF polarity. This design keeps per-event energy extremely low (~57 pJ) and allows the sensor to reach ~1.4 GEvents/s without arbitration delays. Because output is already frame-like, it fits naturally into existing machine learning pipelines that expect regular image-like input at deterministic timing.
+The OmniVision 3-wafer is different: a true asynchronous event stream is preserved. A dedicated 1MP event wafer with in-pixel time-to-digital converters stamps each event with microsecond accuracy. Skip-logic and four parallel readout channels give a 4.6 GEvents/s throughput. This is closer to the classic DVS concept, ideal for ultra-fast motion analysis or scientific experiments where every microsecond matters. The integrated image signal processor can fuse the dense 15MP RGB video with the sparse event stream in hardware for applications such as 10 kfps slow-motion videos.
+The Sony 1.22 μm hybrid sensor aimed at mobile devices combines a huge 35.6 MP RGB array with a 2 MP event array. Four 1.22 µm photodiodes form each event pixel (4.88 µm pitch). The event side operates in variable-rate event-frame mode, outputting up to 10 kfps inside each RGB frame period. On-chip event-drop filters and compression dynamically reduce data volume while preserving critical motion information for downstream neural networks (e.g. deblurring or video frame interpolation). It is a practical demonstration that event frames and RGB can be tightly synchronized so that a phone SoC can consume both without exotic drivers.</p>
+<p><img alt="hybrid-vision-sensor-sony" loading="lazy" src="/posts/event-cameras-2025-part2/images/hvs-sony.png">
+<em><a href="https://ieeexplore.ieee.org/document/10067520">Kodama et al.</a> presented a sensor that outputs variable-rate binary event frames next to RGB.</em></p>
+<p><img alt="hybrid-vision-sensor-sony" loading="lazy" src="/posts/event-cameras-2025-part2/images/hvs-omnivision.png">
+<em><a href="https://ieeexplore.ieee.org/document/10067476">Guo et al.</a> presented a new generation of hybrid vision sensor that outputs binary events.</em></p>
+<p>I find the trend towards event frames interested an in line with what most researchers have been feeding their machine learning models anyway. In either case, the event camera sensor has not reached its final form yet. The question is always in what way events should be represented in order to be compatible with modern machine learning methods.</p>
 <h2 id="event-representations">Event Representations</h2>
 <p>Most common approaches aggregate events into <a href="https://tonic.readthedocs.io/en/latest/auto_examples/index.html#event-representations">image-like representations</a> such as 2d histograms, voxel grids, or time surfaces. These are then used to fine-tune deep learning models that were pre-trained on RGB images. This leverages the breadth of existing tooling built for images and is compatible with GPU-accelerated training and inference. Moreover, it allows for adaptive frame rates, aggregating only when there’s activity and potentially saving on compute. However, this method discards much of the fine temporal structure that makes event cameras valuable in the first place.
 We still lack a representation for event streams that works well with modern ML architectures and preserves their sparsity. Event streams are a new data modality, just like images, audio, or text, but one for which we haven’t yet cracked the “tokenization problem.” A single ON or OFF event contains very little semantic information. Unlike a word in a sentence, which can encode a concept, even a dozen events reveal almost nothing about the scene. This makes direct tokenization of events inefficient and ineffective. What we need is a representation that can summarize local spatiotemporal structure into meaningful, higher-level primitives. Something akin to a “visual word” for events.</p>
@@ -100,6 +139,8 @@ The same principle applies for events. When you have few pixels activated, you a
 <li>Keep it practical. Biologically-inspired approaches should not distract from deployment-grade ML solutions.</li>
 </ul>
 <p>The recipe that scales is: build a token stream that carries meaning, train it with cross‑modal supervision and self‑supervision that reflects real sensor noise, keep a compact scene memory that is cheap to update, and make computation conditional on activity rather than on a fixed clock.</p>
+<p>Binary events don&rsquo;t contain enough information on their own, so they must be aggregated in one form or another. Event sensors might move from binary outputs toward richer encodings at the pixel level, attach a dedicated processor to output richer representations, or they simply output what the world already knows well: another form of frames. While many researchers (including me) originally set out to work with binary events directly, I think it is time to swallow a bitter pill and accept that computer vision will depend on frames for the foreseeable future.<br>
+My bet is currently on the latter, because the simplest solutions tend to win.</p>
 <p>Deep learning started out with 32 bit floating point, dense representations, and neuromorphic started out on the other end of the spectrum at binary, extremely sparse representations. They are converging, with neuromorphic realising that binary events are expensive to transmit, and deep learning embracing 4 bit activations and 2:4 sparsity.</p>
 <p>Interesting research directions for event cameras today are about dynamic graph representations for efficient tokenization, state space models for efficient inference, lossy compression for smaller file sizes. To unlock the full potential of event cameras, we need to solve the representation problem to make it compatible with modern deep learning hardware and software, while preserving the extreme sparsity of the data.
 Also we shouldn’t be too focused on biologically-inspired processing if we want this thing to scale anytime soon. I think that either the sensors must evolve to emit richer, token-friendly outputs, or they must be paired with dedicated pre-processors that produce high-level, potentially graph-based abstractions. Once that happens, event cameras become easy enough to work with to reach the mainstream.</p>
