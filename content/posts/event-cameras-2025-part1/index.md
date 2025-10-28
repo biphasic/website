@@ -3,8 +3,8 @@ title: "Event cameras in 2025, Part 1"
 
 commentable: true
 
-date: 2025-08-13
-lastmod: 2025-08-13
+date: 2025-10-13
+lastmod: 2025-10-13
 draft: false
 
 tags: ["Event cameras"]
