@@ -13,7 +13,7 @@ summary: "A journey through the Moroccan desert for star gazing and cultural exp
 
 When I was 22, I went to New Zealand with my dad and experienced one of the most memorable star gazing nights on Mount Cook, with stars visible down to the horizon, in the clear skies of a no flight zone. It was magical, and I wanted to do something similar with my wife. Star gazing is best done in remote places, and because I had never been to the African continent, I thought why not go to the desert? I looked up the date for New Moon, when the night is darkest, 6 months in advance. This is how our trip to the Moroccan desert came about. 
 
-From London, we flew directly to Ouarzazate, which is east of the Atlas mountains. In our rented car, we drove via Tinghir to Merzouga, to make our way to the Sahara via the _route of 1000 Kasbahs_, which are traditional fortresses, often made of earth and clay, that served as residences for leaders and defenses against invasions between the 17th to 19th century. You can find a [list](https://maps.app.goo.gl/TNmGZPe5RD9PrQPf8?g_st=ac) of all the hotels we stayed at and places we visited.  
+From London, we flew directly to Ouarzazate, which is east of the Atlas mountains. In our rented car from [Zizdra Tours](https://zizdratours.com/#), which we were very happy with, we drove via Tinghir to Merzouga, to make our way to the Sahara via the _route of 1000 Kasbahs_, which are traditional fortresses, often made of earth and clay, that served as residences for leaders and defenses against invasions between the 17th to 19th century. You can find a [list](https://maps.app.goo.gl/TNmGZPe5RD9PrQPf8?g_st=ac) of all the hotels we stayed at and places we visited.  
 
 ![Route through the desert](photos/gmaps.png)
 *Our [route](https://maps.app.goo.gl/dY68ydCaDhZusHCD9) from Ouarzazate to Errachidia by car in 8 days. It was about 500km in total.*
@@ -26,9 +26,9 @@ From Ouarzazate it's about a 40 minute drive to [Aït Benhaddou](https://maps.ap
 ![Aït Benhaddou Kasbah](photos/ait-ben-haddou.jpg)
 *The impressive Aït Benhaddou Kasbah, a UNESCO World Heritage site where many movies have been filmed.*
 
-The second Kasbah we visited was [Taourirt](https://maps.app.goo.gl/2v7Z27zEYQn5T6nX6), directly in Ouarzazate, again with a local guide. It was under renovation because of an earthquake in 2023. He told us about how the Amazhir, the people living in the area before the Arabs arrived, became known as Berber, and the multitude of French, Arabic and Amazhir culture, while sharing a cup of mint tea. Did you know that in Morocco they use three alphabets? Arabic, Latin, and Tamazhir.
+The second Kasbah we visited was [Taourirt](https://maps.app.goo.gl/2v7Z27zEYQn5T6nX6), directly in Ouarzazate, again with a local guide. It was under renovation because of an earthquake in 2023. He told us about how the Amazigh, the people living in the area before the Arabs arrived, became known as Berber, and the multitude of French, Arabic and Amazigh culture, while sharing a cup of mint tea. Did you know that in Morocco they use three alphabets? Arabic, Latin, and Tamazight.
 
-![Tamazhir alphabet](photos/tamazhir.jpg)
+![Tamazight alphabet](photos/tamazhir.jpg)
 *Tamazight, with its own alphabet, is spoken in Amazigh (Berber) communities across Morocco, Algeria, Tunisia, Libya, and parts of Mauritania.*
 
 In town, my wife found a wonderfully decorated [French restaurant](https://maps.app.goo.gl/PYYQKVRxR3W3SQpC7) with an indoor pool and great food. After some days of eating tagine and couscous, it was a welcome change. 
@@ -65,4 +65,3 @@ Our trip to the Moroccan desert was something out of the ordinary. It's easily a
 
 Cash is king in the remote areas, so make sure you withdraw enough to pay for restaurants and hotels if you want to avoid a 3-5% card fee. Haggling is part of buying things, especially so in Marrakech. 
 I found people to be really friendly, and everyone was open for a chat. Although streets are sometimes dimly lit at night, it was always safe. During our trip we got in touch with the locals, we admired the beautiful nature, and especially the scenery of the Sahara. I would recommend it!
-
