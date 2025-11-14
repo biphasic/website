@@ -117,6 +117,8 @@ On mixed-signal hardware, rules are different, but maintaining state is always e
 The asynchronous compute principle is key for event cameras, but naïve asynchrony is not constructive. Think about cars entering a roundabout, and the flow of traffic without any traffic lights. When the traffic volume is low, every car is more or less in constant motion, and latency to cross the roundabout is minimal. As the volume of traffic grows, a roundabout becomes inefficient, because the movement of any car depends on the decisions of cars nearby. For high traffic flow, it becomes more efficient to use traffic lights to `batch process` the traffic for multiple lanes at once, which achieves the highest throughput of cars.
 The same principle applies for events. When you have few pixels activated, you achieve the lowest latency when you process them as they come in one by one, like cars in a roundabout. But as the amount of events / s increases, you will want to process the events in batches, like with traffic lights. Ideally the size of the batch depends on the event rate. 
 
+Making a custom chip for a single architecture, whether LSTMs, SNNs, or a bespoke event-processing pipeline, is a huge bet. History isn’t kind to these bets. The past decade saw multiple companies attempt specialised RNN accelerators and most collapsed, pivoted, or were absorbed once general-purpose GPUs and NPUs caught up. Unless a camera produces representations that map cleanly onto widely available hardware, the software ecosystem will outrun the silicon. 
+
 For more info about neuromorphic chips, I refer you to [Open Neuromorphic's Hardware Guide](https://open-neuromorphic.org/neuromorphic-computing/hardware/).
 
 ## Conclusion
